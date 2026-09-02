@@ -12,6 +12,7 @@ import {
   Briefcase,
   X
 } from 'lucide-react';
+import PhoneInput from '../components/PhoneInput';
 
 export default function Users() {
   const { user: currentUser } = useAuth();
@@ -263,12 +264,10 @@ export default function Users() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }} className="grid-2">
                 <div>
                   <label className="field-label">Phone Number</label>
-                  <input 
-                    type="tel" 
-                    value={newUserPhone} 
-                    onChange={(e) => setNewUserPhone(e.target.value)} 
-                    className="input-orbit" 
-                    placeholder="Mobile" 
+                  <PhoneInput
+                    value={newUserPhone}
+                    onChange={setNewUserPhone}
+                    defaultCountryCode="IN"
                   />
                 </div>
                 <div>

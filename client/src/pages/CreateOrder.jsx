@@ -19,6 +19,8 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { applyQuoteToForm, linkCustomerOnQuote } from '../utils/quoteFormHydrate';
+import PhoneInput from '../components/PhoneInput';
+import DocumentContractView from '../components/DocumentContractView';
 
 const SUBSCRIPTION_PLANS = ['12 Months', '24 Months', '36 Months', 'Flex', 'One-time'];
 const PAYMENT_PLANS = ['Yearly', 'Half - Yearly', 'Quarterly', 'Monthly', 'One-time'];
@@ -874,17 +876,12 @@ export default function CreateOrder() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }} className="grid-2">
                 <div>
                   <label className="field-label field-required">POC MOBILE NUMBER</label>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--input-bg)', border: '1px solid var(--input-border)', borderRadius: '9999px', padding: '0.25rem 1rem' }}>
-                    <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)' }}>🇮🇳 +91</span>
-                    <input 
-                      type="tel" 
-                      value={pocMobile} 
-                      onChange={(e) => setPocMobile(e.target.value)} 
-                      style={{ border: 'none', outline: 'none', background: 'transparent', flex: 1, padding: '0.5rem 0', color: 'var(--input-text)' }} 
-                      placeholder="81234 56789" 
-                      required 
-                    />
-                  </div>
+                  <PhoneInput
+                    value={pocMobile}
+                    onChange={setPocMobile}
+                    defaultCountryCode={entity === 'UAE' ? 'AE' : (entity === 'UK' ? 'GB' : (entity === 'US' ? 'US' : 'IN'))}
+                    required
+                  />
                 </div>
                 <div>
                   <label className="field-label field-required">DESIGNATION</label>
@@ -1138,92 +1135,33 @@ export default function CreateOrder() {
             </div>
           </div>
 
-          <div className="card card-p-lg" style={{ background: '#f8fafc', display: 'flex', justifyContent: 'center' }}>
-            <div style={{
-              background: 'white', padding: '3.5rem', width: '100%', maxWidth: '650px',
-              fontFamily: 'Times New Roman, serif', color: 'black',
-              boxShadow: 'var(--shadow-lg)'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '2px solid #0f172a', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
-                <div>
-                  <h2 style={{ fontFamily: 'Plus Jakarta Sans', fontWeight: 800, fontSize: '20px', color: '#0f172a' }}>ECONZ IT SERVICES</h2>
-                  <p style={{ fontSize: '9px', color: '#64748b', fontStyle: 'italic', fontFamily: 'Plus Jakarta Sans' }}>Unified Cloud Operations Partner</p>
-                </div>
-                <div style={{ textAlign: 'right', fontSize: '9px', color: '#475569', fontFamily: 'Plus Jakarta Sans' }}>
-                  <p>Ref: <strong>ORD-TEMP</strong></p>
-                  <p>Date: {new Date().toLocaleDateString()}</p>
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem', fontSize: '10px', color: '#334155' }}>
-                <div>
-                  <p style={{ fontWeight: 'bold', color: '#0f172a', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Bill To Customer:</p>
-                  <p style={{ fontSize: '11px', fontWeight: 'bold', color: '#0f172a' }}>{customerName}</p>
-                  <p>{address}</p>
-                  {isIndiaEntity && pan && <p>{taxIdType}: {pan}</p>}
-                  <p>POC: {pocName} ({pocDesignation})</p>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <p style={{ fontWeight: 'bold', color: '#0f172a', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Order Details:</p>
-                  <p>Entity: Econz {entity}</p>
-                  <p>Deal Type: {dealType}</p>
-                  <p>Billing Type: {billTo}</p>
-                  <p>Currency: {currency}</p>
-                </div>
-              </div>
-
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10px', marginTop: '1rem', border: '1px solid #cbd5e1' }}>
-                <thead>
-                  <tr style={{ background: '#f8fafc', borderBottom: '1px solid #cbd5e1' }}>
-                    <th style={{ padding: '0.5rem', textAlign: 'left', fontWeight: 'bold' }}>SKU Description</th>
-                    <th style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 'bold' }}>Price</th>
-                    <th style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 'bold' }}>Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orderSkus.map((s, idx) => (
-                    <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                      <td style={{ padding: '0.5rem' }}>
-                        <strong>{s.name}</strong><br />
-                        <span style={{ fontSize: '8px', color: '#64748b' }}>Plan: {s.subPlan} | Qty: {s.qty}</span>
-                      </td>
-                      <td style={{ padding: '0.5rem', textAlign: 'right' }}>{getCurrencySymbol(currency)}{parseFloat(s.sellPrice || 0)?.toFixed(2)}</td>
-                      <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 'bold' }}>
-                        {getCurrencySymbol(currency)}{(s.sellPrice * s.qty)?.toFixed(2)}
-                      </td>
-                    </tr>
-                  ))}
-                  <tr style={{ background: '#f8fafc', borderTop: '2px solid #0f172a' }}>
-                    <td colSpan={2} style={{ padding: '0.5rem', fontWeight: 'bold', textTransform: 'uppercase' }}>Subtotal ACV</td>
-                    <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 'bold', fontSize: '10px', color: '#0f172a' }}>
-                      {getCurrencySymbol(currency)}{subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                    </td>
-                  </tr>
-                  <tr style={{ background: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
-                    <td colSpan={2} style={{ padding: '0.5rem', fontWeight: 'bold', textTransform: 'uppercase' }}>{taxName}</td>
-                    <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 'bold', fontSize: '10px', color: '#0f172a' }}>
-                      {getCurrencySymbol(currency)}{taxAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                    </td>
-                  </tr>
-                  <tr style={{ background: '#f8fafc', borderTop: '2px solid #0f172a' }}>
-                    <td colSpan={2} style={{ padding: '0.5rem', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '11px' }}>Grand Total (Final Value)</td>
-                    <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 'bold', fontSize: '11px', color: '#0f172a' }}>
-                      {getCurrencySymbol(currency)}{finalContractValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <div style={{ marginTop: '2rem', fontSize: '10px', color: '#475569', textAlign: 'justify', lineHeight: '1.4' }}>
-                <h4 style={{ fontWeight: 'bold', color: '#0f172a', textTransform: 'uppercase', borderBottom: '1px solid #e2e8f0', paddingBottom: '0.25rem', marginBottom: '0.5rem' }}>
-                  Jurisdiction Clauses ({selectedTemplate})
-                </h4>
-                <p>
-                  This agreement is governed by the laws of {entity === 'UAE' ? 'Dubai, UAE (DIFC)' : (entity === 'UK' ? 'London, UK' : entity === 'US' ? 'Delaware, USA' : 'New Delhi, India')}.
-                  Tax rates of {taxName} shall be added at invoicing.
-                </p>
-              </div>
-            </div>
+          {/* Full-Page Legal Agreement Preview */}
+          <div style={{ background: '#f8fafc', padding: '2rem 1rem', borderRadius: '1rem', display: 'flex', justifyContent: 'center' }} className="dark:bg-slate-900/40">
+            <DocumentContractView
+              refId={isEditMode ? editingRefId : 'ORD-TEMP'}
+              executionDate={todayStr()}
+              customerName={customerName}
+              companyShortName={companyShortName}
+              orderPan={isIndiaAndInr ? pan : vat}
+              taxIdType={isIndiaAndInr ? taxIdType : 'VAT'}
+              orderAddress={address}
+              pocName={pocName}
+              pocDesignation={pocDesignation}
+              pocEmail={pocEmail}
+              pocMobile={pocMobile}
+              entity={entity}
+              currency={currency}
+              billTo={billTo}
+              dealType={dealType}
+              templateName={selectedTemplate || 'Google Workspace Business Plus Business Associated Services'}
+              skus={orderSkus}
+              subtotal={subtotal}
+              taxAmount={taxAmount}
+              taxName={taxName}
+              finalContractValue={finalContractValue}
+              econzSignerName="Srikar M"
+              econzSignerTitle="Head - Revenue Operations"
+            />
           </div>
 
           <div style={{
