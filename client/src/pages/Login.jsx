@@ -1,18 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { useTheme } from '../context/ThemeContext';
-import { Sun, Moon, ArrowRight, Globe } from 'lucide-react';
+import { Sun, Moon, ArrowRight, Globe, Lock, Mail, ShieldCheck } from 'lucide-react';
+import api from '../services/api';
 
 export default function Login() {
   const [email, setEmail] = useState('admin@econz.cloud');
   const [password, setPassword] = useState('password');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login, user } = useAuth();
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const { login, loginWithGoogle, user } = useAuth();
   const { showToast } = useToast();
   const { dark, toggle } = useTheme();
   const navigate = useNavigate();
+  const googleBtnRef = useRef(null);
 
   // Redirect if user is already logged in
   useEffect(() => {
@@ -20,6 +23,109 @@ export default function Login() {
       navigate('/dashboard');
     }
   }, [user, navigate]);
+
+  // Load Google Identity Services SDK
+  useEffect(() => {
+    const loadGoogleGSI = () => {
+      if (window.google?.accounts?.id) {
+        initializeGSI();
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      script.onload = initializeGSI;
+      document.body.appendChild(script);
+    };
+
+    const initializeGSI = async () => {
+      try {
+        let clientId = '171082207472-qotdfg7ul94pmk94gshds124.apps.googleusercontent.com';
+        try {
+          const cfgRes = await api.get('/auth/google/config');
+          if (cfgRes.data?.clientId) clientId = cfgRes.data.clientId;
+        } catch (e) {
+          // fallback
+        }
+
+        if (window.google?.accounts?.id) {
+          window.google.accounts.id.initialize({
+            client_id: clientId,
+            callback: async (response) => {
+              if (response.credential) {
+                try {
+                  setGoogleLoading(true);
+                  await loginWithGoogle({ credential: response.credential });
+                  showToast('Google authentication successful! Entered orbit.');
+                  navigate('/dashboard');
+                } catch (err) {
+                  showToast(err.response?.data?.message || 'Google authentication failed', true);
+                } finally {
+                  setGoogleLoading(false);
+                }
+              }
+            }
+          });
+        }
+      } catch (err) {
+        console.error('Error initializing Google Sign-In:', err);
+      }
+    };
+
+    loadGoogleGSI();
+  }, [loginWithGoogle, navigate, showToast]);
+
+  const handleGoogleCustomClick = async () => {
+    if (googleLoading) return;
+    setGoogleLoading(true);
+
+    try {
+      let clientId = '171082207472-qotdfg7ul94pmk94gshds124.apps.googleusercontent.com';
+      try {
+        const cfgRes = await api.get('/auth/google/config');
+        if (cfgRes.data?.clientId) clientId = cfgRes.data.clientId;
+      } catch (e) {}
+
+      if (window.google?.accounts?.oauth2) {
+        const client = window.google.accounts.oauth2.initTokenClient({
+          client_id: clientId,
+          scope: 'openid email profile https://www.googleapis.com/auth/documents.readonly',
+          callback: async (tokenResponse) => {
+            if (tokenResponse && tokenResponse.access_token) {
+              try {
+                await loginWithGoogle({ accessToken: tokenResponse.access_token });
+                showToast('Google authentication successful! Entered orbit.');
+                navigate('/dashboard');
+              } catch (err) {
+                showToast(err.response?.data?.message || 'Google authentication failed', true);
+              } finally {
+                setGoogleLoading(false);
+              }
+            } else {
+              setGoogleLoading(false);
+            }
+          },
+          error_callback: () => {
+            setGoogleLoading(false);
+            showToast('Google Sign-In was cancelled or popup blocked', true);
+          }
+        });
+        client.requestAccessToken();
+      } else if (window.google?.accounts?.id) {
+        window.google.accounts.id.prompt();
+        setGoogleLoading(false);
+      } else {
+        // Fallback standard Google OAuth window
+        const redirect = `${window.location.origin}/dashboard`;
+        const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirect)}&response_type=token&scope=${encodeURIComponent('openid email profile https://www.googleapis.com/auth/documents.readonly')}`;
+        window.location.href = authUrl;
+      }
+    } catch (err) {
+      showToast('Could not initialize Google authentication', true);
+      setGoogleLoading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -122,40 +228,38 @@ export default function Login() {
       <div style={{
         position: 'relative',
         zIndex: 20,
-        marginBottom: '2rem',
+        marginBottom: '1.5rem',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        paddingTop: '1.5rem',
+        paddingTop: '1rem',
         flexShrink: 0
       }}>
         {/* Globe circular container */}
         <div className="glass-panel-login" style={{
-          height: '6rem', width: '6rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 20px 50px -12px rgba(14,165,233,0.3)', marginBottom: '1.5rem', position: 'relative',
-          transition: 'transform 0.5s', borderRadius: '2rem'
+          height: '5.5rem', width: '5.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 20px 50px -12px rgba(14,165,233,0.3)', marginBottom: '1.25rem', position: 'relative',
+          transition: 'transform 0.5s', borderRadius: '1.75rem'
         }}>
           <div style={{
             position: 'absolute',
             inset: 0,
             background: 'linear-gradient(to bottom right, rgba(2, 132, 199, 0.1), transparent)',
-            borderRadius: '2rem'
+            borderRadius: '1.75rem'
           }}></div>
-          <Globe size={48} className="text-brand" style={{ position: 'relative', zIndex: 10 }} />
+          <Globe size={42} className="text-brand" style={{ position: 'relative', zIndex: 10 }} />
         </div>
 
         {/* Title */}
         <h1 style={{
-          fontSize: '3rem',
+          fontSize: '2.5rem',
           fontWeight: 800,
           color: dark ? 'white' : 'var(--slate-900)',
           letterSpacing: '-0.02em',
           textAlign: 'center',
           lineHeight: 1.1
         }}>
-          econz <span style={{
-            color: 'var(--text-accent)'
-          }}>orbit</span>
+          econz <span style={{ color: 'var(--text-accent)' }}>orbit</span>
         </h1>
         
         {/* Subtitle */}
@@ -165,7 +269,7 @@ export default function Login() {
           fontWeight: 700,
           textTransform: 'uppercase',
           letterSpacing: '0.3em',
-          marginTop: '0.75rem'
+          marginTop: '0.5rem'
         }}>
           Cloud Promise Delivered
         </p>
@@ -173,20 +277,65 @@ export default function Login() {
 
       {/* Login Card Panel */}
       <div className="glass-panel-login" style={{
-        padding: '2.5rem 2rem',
-        borderRadius: '2.5rem',
+        padding: '2.25rem 2rem',
+        borderRadius: '2rem',
         width: '100%',
-        maxWidth: '400px',
+        maxWidth: '420px',
         position: 'relative',
         zIndex: 10,
         margin: '0 1rem',
         display: 'flex',
         flexDirection: 'column',
-        gap: '1.5rem',
+        gap: '1.25rem',
         flexShrink: 0
       }}>
+
+        {/* Google OAuth Button */}
+        <div>
+          <button
+            type="button"
+            onClick={handleGoogleCustomClick}
+            disabled={googleLoading || isSubmitting}
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.75rem',
+              padding: '0.75rem 1rem',
+              borderRadius: '9999px',
+              border: '1px solid var(--border-subtle, #cbd5e1)',
+              background: dark ? '#1e293b' : '#ffffff',
+              color: dark ? '#ffffff' : '#1e293b',
+              fontSize: '0.875rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
+              transition: 'all 0.15s ease'
+            }}
+            className="hover:scale-[1.01] active:scale-[0.99]"
+          >
+            {/* Google Colorful G Icon */}
+            <svg width="18" height="18" viewBox="0 0 48 48">
+              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+              <path fill="none" d="M0 0h48v48H0z"/>
+            </svg>
+            <span>{googleLoading ? 'Connecting Google API...' : 'Continue with Google'}</span>
+          </button>
+        </div>
+
+        {/* Divider */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', margin: '0.25rem 0' }}>
+          <div style={{ flex: 1, height: '1px', background: 'var(--border-subtle, #e2e8f0)' }}></div>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted, #94a3b8)', fontWeight: 600, textTransform: 'uppercase' }}>or sign in with password</span>
+          <div style={{ flex: 1, height: '1px', background: 'var(--border-subtle, #e2e8f0)' }}></div>
+        </div>
+
         {/* Inputs Form */}
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
             <label className="field-label" style={{ margin: '0 0 0 0.25rem' }}>Work Email</label>
             <input 
@@ -194,6 +343,7 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="login-input"
+              placeholder="user@econz.cloud"
               required
             />
           </div>
@@ -204,6 +354,7 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="login-input"
+              placeholder="••••••••"
               required
             />
           </div>
@@ -213,7 +364,7 @@ export default function Login() {
             className="btn-primary"
             style={{ 
               marginTop: '0.5rem',
-              padding: '1rem', 
+              padding: '0.85rem', 
               justifyContent: 'center',
               background: 'linear-gradient(135deg, var(--brand-600), var(--violet-500))',
               color: 'white',
@@ -235,7 +386,7 @@ export default function Login() {
 
         {/* Demo role quick-login */}
         <div style={{
-          marginTop: '0.5rem',
+          marginTop: '0.25rem',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -244,7 +395,7 @@ export default function Login() {
           zIndex: 1,
         }}>
           <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-            Demo login
+            Demo Quick-Login
           </span>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
             <button
@@ -252,7 +403,7 @@ export default function Login() {
               disabled={isSubmitting}
               onClick={() => handleDemoLogin('admin@econz.cloud')}
               className="btn-secondary"
-              style={{ padding: '0.5rem 1rem', borderRadius: '0.75rem', fontSize: '0.75rem', fontWeight: 700 }}
+              style={{ padding: '0.4rem 0.85rem', borderRadius: '0.75rem', fontSize: '0.75rem', fontWeight: 700 }}
             >
               Admin
             </button>
@@ -261,7 +412,7 @@ export default function Login() {
               disabled={isSubmitting}
               onClick={() => handleDemoLogin('manager@econz.cloud')}
               className="btn-secondary"
-              style={{ padding: '0.5rem 1rem', borderRadius: '0.75rem', fontSize: '0.75rem', fontWeight: 700 }}
+              style={{ padding: '0.4rem 0.85rem', borderRadius: '0.75rem', fontSize: '0.75rem', fontWeight: 700 }}
             >
               Manager
             </button>
@@ -270,7 +421,7 @@ export default function Login() {
               disabled={isSubmitting}
               onClick={() => handleDemoLogin('sales@econz.cloud')}
               className="btn-secondary"
-              style={{ padding: '0.5rem 1rem', borderRadius: '0.75rem', fontSize: '0.75rem', fontWeight: 700 }}
+              style={{ padding: '0.4rem 0.85rem', borderRadius: '0.75rem', fontSize: '0.75rem', fontWeight: 700 }}
             >
               Sales
             </button>

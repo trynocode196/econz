@@ -4,31 +4,51 @@ const User = require('../models/User');
 const { protect } = require('../middleware/auth');
 const { roleCheck } = require('../middleware/roleCheck');
 
+// @route GET /api/users
 router.get('/', protect, roleCheck('Admin', 'Manager'), async (req, res) => {
-  try { res.json(await User.find().select('-password').sort({ createdAt: -1 })); }
-  catch (err) { res.status(500).json({ message: err.message }); }
+  try {
+    const users = await User.find().select('-password').sort({ createdAt: -1 });
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
+// @route POST /api/users (Create User - Admin/Manager only)
 router.post('/', protect, roleCheck('Admin', 'Manager'), async (req, res) => {
   try {
-    const exists = await User.findOne({ email: req.body.email?.toLowerCase()?.trim() });
-    if (exists) return res.status(400).json({ message: 'Email already in use' });
+    const { name, email, password, role, entity, phone, designation, status, accessLevels, reportingManagers } = req.body;
+    
+    if (!name || !email) {
+      return res.status(400).json({ message: 'Name and email are required' });
+    }
+
+    const exists = await User.findOne({ email: email.toLowerCase().trim() });
+    if (exists) {
+      return res.status(400).json({ message: 'A user with this email address already exists' });
+    }
+
     const user = new User({
-      name: req.body.name,
-      email: req.body.email,
-      phone: req.body.phone || '',
-      designation: req.body.designation || 'Customer Success Account Management Team',
-      role: req.body.role || 'Manager',
-      status: req.body.status || 'Active',
-      accessLevels: req.body.accessLevels || ['Sales Team'],
-      reportingManagers: req.body.reportingManagers || [],
-      password: req.body.password || 'password'
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
+      password: password || 'password123',
+      role: role || 'Sales',
+      entity: entity || 'India',
+      phone: phone || '',
+      designation: designation || 'Customer Success Account Management Team',
+      status: status || 'Active',
+      accessLevels: accessLevels || ['Sales Team', 'Quotes', 'Customers'],
+      reportingManagers: reportingManagers || []
     });
+
     await user.save();
-    res.status(201).json(user);
-  } catch (err) { res.status(400).json({ message: err.message }); }
+    res.status(201).json(user.toJSON());
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
 });
 
+// @route PUT /api/users/:id
 router.put('/:id', protect, roleCheck('Admin', 'Manager'), async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -42,27 +62,39 @@ router.put('/:id', protect, roleCheck('Admin', 'Manager'), async (req, res) => {
       user.email = req.body.email.toLowerCase().trim();
     }
 
-    if (req.body.name !== undefined) user.name = req.body.name;
+    if (req.body.name !== undefined) user.name = req.body.name.trim();
     if (req.body.role !== undefined) user.role = req.body.role;
+    if (req.body.entity !== undefined) user.entity = req.body.entity;
     if (req.body.phone !== undefined) user.phone = req.body.phone;
     if (req.body.designation !== undefined) user.designation = req.body.designation;
     if (req.body.status !== undefined) user.status = req.body.status;
     if (req.body.accessLevels !== undefined) user.accessLevels = req.body.accessLevels;
     if (req.body.reportingManagers !== undefined) user.reportingManagers = req.body.reportingManagers;
-    if (req.body.password) user.password = req.body.password;
+    
+    // If Admin updates password
+    if (req.body.password && req.body.password.trim()) {
+      user.password = req.body.password.trim();
+    }
 
     await user.save();
-    res.json(user);
-  } catch (err) { res.status(400).json({ message: err.message }); }
+    res.json(user.toJSON());
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
 });
 
+// @route DELETE /api/users/:id
 router.delete('/:id', protect, roleCheck('Admin', 'Manager'), async (req, res) => {
   try {
-    if (req.params.id === req.user._id.toString())
-      return res.status(400).json({ message: 'Cannot delete yourself' });
-    await User.findByIdAndDelete(req.params.id);
-    res.json({ message: 'User deleted' });
-  } catch (err) { res.status(500).json({ message: err.message }); }
+    if (req.params.id === req.user._id.toString()) {
+      return res.status(400).json({ message: 'Cannot delete your own administrator account' });
+    }
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ message: 'User deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
 module.exports = router;

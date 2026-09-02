@@ -5,17 +5,20 @@ const UserSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
   password: { type: String, default: 'password' },
-  role: { type: String, default: 'Manager' },
+  role: { type: String, default: 'Manager' }, // Admin, Manager, Sales, Finance, Operations
+  entity: { type: String, default: 'India' }, // India, UAE, UK, US, Global
   phone: { type: String, default: '' },
   designation: { type: String, default: 'Customer Success Account Management Team' },
   status: { type: String, default: 'Active' },
-  accessLevels: { type: [String], default: ['Sales Team'] },
+  accessLevels: { type: [String], default: ['Sales Team', 'Quotes', 'Customers'] },
   reportingManagers: [{
     id: { type: String },
     name: { type: String },
     email: { type: String }
   }],
   avatar: { type: String, default: '' },
+  googleId: { type: String, default: '' },
+  authProvider: { type: String, default: 'local' }, // 'local' | 'google'
 }, { timestamps: true });
 
 UserSchema.pre('save', async function (next) {
