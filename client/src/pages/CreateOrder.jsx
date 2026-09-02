@@ -360,7 +360,6 @@ export default function CreateOrder() {
       if (!taxIdVerified) return `Please verify ${taxIdType} before continuing`;
     } else {
       if (isBlank(vat)) return 'VAT number is required';
-      if (!taxIdVerified) return 'Please verify VAT before continuing';
     }
     if (isBlank(industry)) return 'Industry is required';
     if (isBlank(address)) return 'Customer company address is required';
@@ -812,24 +811,12 @@ export default function CreateOrder() {
               </div>
             ) : (
               <div style={{ marginTop: '1.25rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }} className="grid-2">
-                <div className="field-stack">
-                  <div className="field-stack-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <label className="field-label field-required" style={{ margin: 0 }}>VAT</label>
-                    <button
-                      type="button"
-                      className={`verify-pan-btn ${taxIdVerified ? 'verified' : ''}`}
-                      onClick={handleVerifyTaxId}
-                    >
-                      {taxIdVerified ? 'Verified VAT' : 'Verify VAT'}
-                    </button>
-                  </div>
+                <div>
+                  <label className="field-label field-required">VAT</label>
                   <input
                     type="text"
                     value={vat}
-                    onChange={(e) => {
-                      setVat(e.target.value);
-                      setTaxIdVerified(false);
-                    }}
+                    onChange={(e) => setVat(e.target.value)}
                     className="input-orbit"
                     placeholder="Type here..."
                     required
