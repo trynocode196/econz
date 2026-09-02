@@ -695,19 +695,19 @@ export default function Quotes() {
 
                   return (
                     <tr key={q._id} onClick={() => handleOpenPreview(q._id)}>
-                      <td style={{ fontFamily: 'monospace', fontWeight: 600, fontSize: '0.875rem' }}>{q.refId}</td>
-                      <td style={{ fontSize: '0.875rem' }}>{formatDate(q.createdAt)}</td>
-                      <td style={{ fontWeight: 800, textTransform: 'uppercase' }}>{q.customerName}</td>
-                      <td style={{ fontSize: '0.875rem' }}>{q.title}</td>
-                      <td style={{ fontWeight: 800 }}>{formatValue(q.value, q.currency)}</td>
-                      <td>
-                        <span className={`badge ${badgeClass}`}>{s}</span>
+                      <td style={{ fontFamily: 'monospace', fontWeight: 600, fontSize: '0.875rem', whiteSpace: 'nowrap' }}>{q.refId}</td>
+                      <td style={{ fontSize: '0.875rem', whiteSpace: 'nowrap' }}>{formatDate(q.createdAt)}</td>
+                      <td style={{ fontWeight: 800, textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{q.customerName}</td>
+                      <td style={{ fontSize: '0.875rem', whiteSpace: 'nowrap' }}>{q.title}</td>
+                      <td style={{ fontWeight: 800, whiteSpace: 'nowrap' }}>{formatValue(q.value, q.currency)}</td>
+                      <td style={{ whiteSpace: 'nowrap' }}>
+                        <span className={`badge ${badgeClass}`} style={{ whiteSpace: 'nowrap' }}>{s}</span>
                       </td>
-                      <td style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                      <td style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
                         {q.createdBy?.name || 'Lindsay Smith'}
                       </td>
-                      <td style={{ textAlign: 'right' }} onClick={(e) => e.stopPropagation()}>
-                        <div style={{ display: 'flex', gap: '0.25rem', justifyContent: 'center' }}>
+                      <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }} onClick={(e) => e.stopPropagation()}>
+                        <div style={{ display: 'flex', gap: '0.25rem', justifyContent: 'center', whiteSpace: 'nowrap' }}>
                           <button onClick={() => handleOpenPreview(q._id)} className="btn-ghost" title="View document">
                             <Eye size={16} />
                           </button>

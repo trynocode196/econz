@@ -487,14 +487,14 @@ export default function DocumentsDeal() {
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                  <th style={{ padding: '1.125rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>ID / REF</th>
-                  <th style={{ padding: '1.125rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>CREATION DATE</th>
-                  <th style={{ padding: '1.125rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>CUSTOMER</th>
-                  <th style={{ padding: '1.125rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>TITLE</th>
-                  <th style={{ padding: '1.125rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>VALUE</th>
-                  <th style={{ padding: '1.125rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>STATUS</th>
-                  <th style={{ padding: '1.125rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>CREATED BY</th>
-                  <th style={{ padding: '1.125rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'center' }}>ACTION</th>
+                  <th style={{ padding: '0.85rem 1.15rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>ID / REF</th>
+                  <th style={{ padding: '0.85rem 1.15rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>CREATION DATE</th>
+                  <th style={{ padding: '0.85rem 1.15rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>CUSTOMER</th>
+                  <th style={{ padding: '0.85rem 1.15rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>TITLE</th>
+                  <th style={{ padding: '0.85rem 1.15rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>VALUE</th>
+                  <th style={{ padding: '0.85rem 1.15rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>STATUS</th>
+                  <th style={{ padding: '0.85rem 1.15rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>CREATED BY</th>
+                  <th style={{ padding: '0.85rem 1.15rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'center', whiteSpace: 'nowrap' }}>ACTION</th>
                 </tr>
               </thead>
               <tbody>
@@ -527,22 +527,22 @@ export default function DocumentsDeal() {
                         className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40"
                         onClick={() => setSelectedDeal(deal)}
                       >
-                        <td style={{ padding: '1.125rem 1.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)', fontFamily: 'monospace', fontWeight: 600 }}>
+                        <td style={{ padding: '0.85rem 1.15rem', fontSize: '0.85rem', color: 'var(--text-secondary)', fontFamily: 'monospace', fontWeight: 600, whiteSpace: 'nowrap' }}>
                           {deal.refId || 'ORD-NEW'}
                         </td>
-                        <td style={{ padding: '1.125rem 1.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                        <td style={{ padding: '0.85rem 1.15rem', fontSize: '0.85rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
                           {formatDate(deal.createdAt || deal.documentExecutionDate)}
                         </td>
-                        <td style={{ padding: '1.125rem 1.5rem', fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                        <td style={{ padding: '0.85rem 1.15rem', fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>
                           {deal.customerName}
                         </td>
-                        <td style={{ padding: '1.125rem 1.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                        <td style={{ padding: '0.85rem 1.15rem', fontSize: '0.85rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
                           {deal.title || 'GWS New'}
                         </td>
-                        <td style={{ padding: '1.125rem 1.5rem', fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                        <td style={{ padding: '0.85rem 1.15rem', fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>
                           {formatValue(deal.value, deal.currency)}
                         </td>
-                        <td style={{ padding: '1.125rem 1.5rem' }}>
+                        <td style={{ padding: '0.85rem 1.15rem', whiteSpace: 'nowrap' }}>
                           <span style={{
                             display: 'inline-block',
                             padding: '0.3rem 0.85rem',
@@ -551,15 +551,16 @@ export default function DocumentsDeal() {
                             color: statusStyle.color,
                             fontSize: '0.8rem',
                             fontWeight: 700,
-                            border: `1px solid ${statusStyle.border}`
+                            border: `1px solid ${statusStyle.border}`,
+                            whiteSpace: 'nowrap'
                           }}>
                             {deal.status || 'Draft'}
                           </span>
                         </td>
-                        <td style={{ padding: '1.125rem 1.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                        <td style={{ padding: '0.85rem 1.15rem', fontSize: '0.85rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
                           {getCreatorName(deal)}
                         </td>
-                        <td style={{ padding: '1.125rem 1.5rem', textAlign: 'center' }}>
+                        <td style={{ padding: '0.85rem 1.15rem', textAlign: 'center', whiteSpace: 'nowrap' }}>
                           <button
                             type="button"
                             onClick={(e) => {
