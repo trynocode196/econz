@@ -630,12 +630,12 @@ export default function DocumentPreview() {
           <p style={{ margin: 0 }}><strong>A4. Econz Technical Support Guidelines</strong></p>
           <p style={{ margin: 0 }}>
             <a 
-              href="https://docs.google.com/document/d/1l-xD3xvxc3iUxWhDmycyN_NClwzxwu45atpLJN_II82Q/edit?tab=t.0" 
+              href="https://docs.google.com/document/d/1l-xD3xvxc3iUxWbDmycyN_NCfwzxwu4SatpLJN_BB2Q/edit?tab=t.0" 
               target="_blank" 
               rel="noopener noreferrer" 
               style={{ color: '#0284c7', textDecoration: 'underline', wordBreak: 'break-all', cursor: 'pointer' }}
             >
-              https://docs.google.com/document/d/1l-xD3xvxc3iUxWhDmycyN_NClwzxwu45atpLJN_II82Q/edit?tab=t.0
+              https://docs.google.com/document/d/1l-xD3xvxc3iUxWbDmycyN_NCfwzxwu4SatpLJN_BB2Q/edit?tab=t.0
             </a>
           </p>
 
