@@ -3,7 +3,15 @@
    Light: Clean Slate White  |  Dark: Deep Navy × Cyan
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Sora:wght@400;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.nebula-accent-gradient {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+}
 
 /* ============================================================
    LIGHT MODE (Default)
