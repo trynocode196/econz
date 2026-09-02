@@ -145,9 +145,21 @@ router.get('/deals', protect, async (req, res) => {
 
 router.get('/deals/:id', protect, async (req, res) => {
   try {
+    const deals = await CrmDeal.find().sort({ createdAt: -1 });
     const deal = await CrmDeal.findById(req.params.id).populate('owner');
     if (!deal) return res.status(404).json({ message: 'Deal not found' });
-    res.json(deal);
+
+    const idx = deals.findIndex(d => String(d._id) === String(req.params.id));
+    const prevId = idx > 0 ? String(deals[idx - 1]._id) : null;
+    const nextId = idx >= 0 && idx < deals.length - 1 ? String(deals[idx + 1]._id) : null;
+
+    res.json({
+      deal,
+      prevId,
+      nextId,
+      index: idx >= 0 ? idx + 1 : 1,
+      total: deals.length
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -351,7 +363,31 @@ router.put('/activities/:activityId', protect, async (req, res) => {
   }
 });
 
+router.put('/deals/:id/activities/:activityId', protect, async (req, res) => {
+  try {
+    const activity = await CrmActivity.findById(req.params.activityId);
+    if (!activity) return res.status(404).json({ message: 'Activity not found' });
+
+    Object.assign(activity, req.body);
+    await activity.save();
+
+    const populated = await CrmActivity.findById(activity._id).populate('createdBy', 'name profilePicture');
+    res.json(populated);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
 router.delete('/activities/:activityId', protect, async (req, res) => {
+  try {
+    await CrmActivity.findByIdAndDelete(req.params.activityId);
+    res.json({ message: 'Activity deleted' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.delete('/deals/:id/activities/:activityId', protect, async (req, res) => {
   try {
     await CrmActivity.findByIdAndDelete(req.params.activityId);
     res.json({ message: 'Activity deleted' });
