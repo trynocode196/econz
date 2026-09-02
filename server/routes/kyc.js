@@ -21,6 +21,8 @@ router.post('/verify', async (req, res) => {
     const endpointType = cleanType === 'PAN' ? 'PAN' : 'GST';
     const requestId = unique_request_id || `REQ_${Date.now()}_${Math.floor(1000 + Math.random() * 9000)}`;
 
+    // Refresh env in case updated live
+    require('dotenv').config({ override: true });
     const authKeyRaw = process.env.DIGIO_AUTH_KEY || process.env.DIGIO_AUTHORIZATION;
 
     // If authorization key is configured in env, perform live Digio KYC verification
@@ -43,26 +45,34 @@ router.post('/verify', async (req, res) => {
 
       const data = await response.json();
 
-      if (response.ok && data) {
+      if (response.ok && data && !data.error_message && !data.error && data.status !== 'INVALID') {
         // Extract useful legal entity info if present
-        const legalName = data.legal_name || data.name || data.trade_name || data.full_name || '';
-        const address = data.principal_place_address || data.address || '';
+        const legalName = data.legal_name || data.trade_name || data.full_name || data.name || '';
         
+        let formattedAddress = '';
+        if (data.pradr?.addr) {
+          const a = data.pradr.addr;
+          formattedAddress = [a.bno, a.bnm, a.st, a.loc, a.city, a.stcd, a.pncd].filter(Boolean).join(', ');
+        } else {
+          formattedAddress = data.principal_place_address || data.address || '';
+        }
+
         return res.json({
           success: true,
           verified: true,
           type: endpointType,
           id_no: cleanId,
           legalName,
-          address,
+          address: formattedAddress,
           digioData: data,
           message: `${endpointType} verified successfully via Digio`
         });
       } else {
-        return res.status(response.status || 400).json({
+        const errorMsg = data?.error_message || data?.message || data?.error || `Invalid ${endpointType} number or verification failed`;
+        return res.status(400).json({
           success: false,
           verified: false,
-          message: data?.message || data?.error || `Unable to verify ${endpointType}`,
+          message: errorMsg,
           digioData: data
         });
       }
