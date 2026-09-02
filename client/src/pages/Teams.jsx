@@ -303,12 +303,12 @@ export default function Teams() {
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                <th style={{ padding: '1.125rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>USER DETAILS</th>
-                <th style={{ padding: '1.125rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>CONTRACT</th>
-                <th style={{ padding: '1.125rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>DESIGNATION</th>
-                <th style={{ padding: '1.125rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>ROLE</th>
-                <th style={{ padding: '1.125rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>STATUS</th>
-                <th style={{ padding: '1.125rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'right' }}></th>
+                <th style={{ padding: '0.85rem 1.15rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>USER DETAILS</th>
+                <th style={{ padding: '0.85rem 1.15rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>CONTRACT</th>
+                <th style={{ padding: '0.85rem 1.15rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>DESIGNATION</th>
+                <th style={{ padding: '0.85rem 1.15rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>ROLE</th>
+                <th style={{ padding: '0.85rem 1.15rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>STATUS</th>
+                <th style={{ padding: '0.85rem 1.15rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'right', whiteSpace: 'nowrap' }}></th>
               </tr>
             </thead>
             <tbody>
@@ -340,11 +340,11 @@ export default function Teams() {
                       className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30"
                     >
                       {/* USER DETAILS */}
-                      <td style={{ padding: '1.125rem 1.5rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      <td style={{ padding: '0.85rem 1.15rem', whiteSpace: 'nowrap' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', whiteSpace: 'nowrap' }}>
                           <div style={{
-                            width: '2.625rem',
-                            height: '2.625rem',
+                            width: '2.5rem',
+                            height: '2.5rem',
                             borderRadius: '0.75rem',
                             background: '#e0f2fe',
                             color: '#0284c7',
@@ -358,10 +358,10 @@ export default function Teams() {
                             {avatarInitial}
                           </div>
                           <div>
-                            <div style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.925rem' }}>
+                            <div style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.925rem', whiteSpace: 'nowrap' }}>
                               {member.name}
                             </div>
-                            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.125rem' }}>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.125rem', whiteSpace: 'nowrap' }}>
                               {member.email}
                             </div>
                           </div>
@@ -369,17 +369,17 @@ export default function Teams() {
                       </td>
 
                       {/* CONTRACT */}
-                      <td style={{ padding: '1.125rem 1.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                      <td style={{ padding: '0.85rem 1.15rem', fontSize: '0.875rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
                         {member.phone || ''}
                       </td>
 
                       {/* DESIGNATION */}
-                      <td style={{ padding: '1.125rem 1.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                      <td style={{ padding: '0.85rem 1.15rem', fontSize: '0.875rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
                         {member.designation || 'Customer Success Account Management Team'}
                       </td>
 
                       {/* ROLE */}
-                      <td style={{ padding: '1.125rem 1.5rem' }}>
+                      <td style={{ padding: '0.85rem 1.15rem', whiteSpace: 'nowrap' }}>
                         <span style={{
                           display: 'inline-block',
                           padding: '0.25rem 0.875rem',
@@ -388,15 +388,16 @@ export default function Teams() {
                           color: '#0284c7',
                           fontSize: '0.825rem',
                           fontWeight: 600,
-                          border: '1px solid #e0f2fe'
+                          border: '1px solid #e0f2fe',
+                          whiteSpace: 'nowrap'
                         }}>
                           {member.role || 'Manager'}
                         </span>
                       </td>
 
                       {/* STATUS */}
-                      <td style={{ padding: '1.125rem 1.5rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <td style={{ padding: '0.85rem 1.15rem', whiteSpace: 'nowrap' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', whiteSpace: 'nowrap' }}>
                           <span style={{
                             width: '7px',
                             height: '7px',
@@ -404,14 +405,14 @@ export default function Teams() {
                             background: member.status === 'Inactive' ? '#94a3b8' : '#10b981',
                             display: 'inline-block'
                           }}></span>
-                          <span style={{ fontSize: '0.825rem', fontWeight: 500, color: 'var(--text-secondary)' }}>
+                          <span style={{ fontSize: '0.825rem', fontWeight: 500, color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
                             {member.status || 'Active'}
                           </span>
                         </div>
                       </td>
 
                       {/* ACTIONS */}
-                      <td style={{ padding: '1.125rem 1.5rem', textAlign: 'right' }}>
+                      <td style={{ padding: '0.85rem 1.15rem', textAlign: 'right', whiteSpace: 'nowrap' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.875rem' }}>
                           <button
                             onClick={() => handleOpenEdit(member)}

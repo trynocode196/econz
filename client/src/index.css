@@ -575,6 +575,7 @@ body.dark .btn-light-sm:hover {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
+  white-space: nowrap;
 }
 /* Light mode badges */
 .badge-green  { background: #d1fae5; color: #065f46; }

@@ -497,13 +497,13 @@ export default function LeadsPipeline() {
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                  <th style={{ padding: '1.125rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>DEAL NAME</th>
-                  <th style={{ padding: '1.125rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>COMPANY</th>
-                  <th style={{ padding: '1.125rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>CONTACT</th>
-                  <th style={{ padding: '1.125rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>STAGE</th>
-                  <th style={{ padding: '1.125rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>AMOUNT</th>
-                  <th style={{ padding: '1.125rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>CLOSE DATE</th>
-                  <th style={{ padding: '1.125rem 1.5rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'center' }}>ACTION</th>
+                  <th style={{ padding: '0.85rem 1.15rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>DEAL NAME</th>
+                  <th style={{ padding: '0.85rem 1.15rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>COMPANY</th>
+                  <th style={{ padding: '0.85rem 1.15rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>CONTACT</th>
+                  <th style={{ padding: '0.85rem 1.15rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>STAGE</th>
+                  <th style={{ padding: '0.85rem 1.15rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>AMOUNT</th>
+                  <th style={{ padding: '0.85rem 1.15rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>CLOSE DATE</th>
+                  <th style={{ padding: '0.85rem 1.15rem', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', textAlign: 'center', whiteSpace: 'nowrap' }}>ACTION</th>
                 </tr>
               </thead>
               <tbody>
@@ -536,16 +536,16 @@ export default function LeadsPipeline() {
                         className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40"
                         onClick={() => navigate(`/crm/deals/${deal._id}`)}
                       >
-                        <td style={{ padding: '1.125rem 1.5rem', fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                        <td style={{ padding: '0.85rem 1.15rem', fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>
                           {deal.name}
                         </td>
-                        <td style={{ padding: '1.125rem 1.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                        <td style={{ padding: '0.85rem 1.15rem', fontSize: '0.85rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
                           {deal.company?.name || '-'}
                         </td>
-                        <td style={{ padding: '1.125rem 1.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                        <td style={{ padding: '0.85rem 1.15rem', fontSize: '0.85rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
                           {deal.contact?.name || deal.contact?.email || '-'}
                         </td>
-                        <td style={{ padding: '1.125rem 1.5rem' }}>
+                        <td style={{ padding: '0.85rem 1.15rem', whiteSpace: 'nowrap' }}>
                           <span style={{
                             display: 'inline-block',
                             padding: '0.3rem 0.85rem',
@@ -554,18 +554,19 @@ export default function LeadsPipeline() {
                             color: stageColor,
                             fontSize: '0.8rem',
                             fontWeight: 700,
-                            border: `1px solid ${stageColor}40`
+                            border: `1px solid ${stageColor}40`,
+                            whiteSpace: 'nowrap'
                           }}>
                             {deal.stage}
                           </span>
                         </td>
-                        <td style={{ padding: '1.125rem 1.5rem', fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                        <td style={{ padding: '0.85rem 1.15rem', fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>
                           {formatCurrency(deal.amount, deal.currency)}
                         </td>
-                        <td style={{ padding: '1.125rem 1.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                        <td style={{ padding: '0.85rem 1.15rem', fontSize: '0.85rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
                           {formatDateStr(deal.closeDate || deal.createdAt)}
                         </td>
-                        <td style={{ padding: '1.125rem 1.5rem', textAlign: 'center' }}>
+                        <td style={{ padding: '0.85rem 1.15rem', textAlign: 'center', whiteSpace: 'nowrap' }}>
                           <button
                             type="button"
                             onClick={(e) => {
