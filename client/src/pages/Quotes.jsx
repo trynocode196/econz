@@ -233,8 +233,7 @@ export default function Quotes() {
   };
 
   const handleOpenPreview = (id) => {
-    setSelectedQuoteId(id);
-    setShowPreviewModal(true);
+    navigate(`/quotes/${id}/preview`);
   };
 
   const handleClosePreview = () => {

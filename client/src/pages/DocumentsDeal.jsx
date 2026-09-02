@@ -564,7 +564,7 @@ export default function DocumentsDeal() {
                             type="button"
                             onClick={(e) => {
                               e.stopPropagation();
-                              setSelectedDeal(deal);
+                              navigate(`/quotes/${deal._id}/preview`);
                             }}
                             style={{
                               background: 'transparent',

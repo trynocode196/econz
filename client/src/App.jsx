@@ -17,6 +17,7 @@ import DocumentsDeal from './pages/DocumentsDeal';
 import Margin from './pages/Margin';
 import LeadsPipeline from './pages/crm/LeadsPipeline';
 import DealDetail from './pages/crm/DealDetail';
+import DocumentPreview from './pages/DocumentPreview';
 
 export default function App() {
   return (
@@ -36,6 +37,7 @@ export default function App() {
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="create-order" element={<CreateOrder />} />
                 <Route path="quotes/:quoteId/edit" element={<CreateOrder />} />
+                <Route path="quotes/:id/preview" element={<DocumentPreview />} />
                 <Route path="quotes" element={<Quotes />} />
                 <Route path="crm" element={<LeadsPipeline />} />
                 <Route path="crm/deals/:id" element={<DealDetail />} />
@@ -46,6 +48,7 @@ export default function App() {
                 
                 {/* New Admin Routes */}
                 <Route path="margin" element={<Margin />} />
+                <Route path="documents-deal/:id/preview" element={<DocumentPreview />} />
                 <Route path="documents-deal" element={<DocumentsDeal />} />
                 <Route path="teams" element={<Teams />} />
                 <Route path="agents" element={<Users />} />
