@@ -423,6 +423,13 @@ body.dark .kpi-card::before {
   box-shadow: 0 0 0 3px rgba(14,165,233,0.12);
   background: var(--surface-1);
 }
+select.input-orbit {
+  padding: 0.5rem 1rem;
+  line-height: 1.5;
+  min-height: 2.75rem;
+  cursor: pointer;
+  appearance: auto;
+}
 body.dark .input-orbit:focus {
   border-color: #06b6d4;
   box-shadow: 0 0 0 3px rgba(6,182,212,0.1), 0 0 15px rgba(6,182,212,0.07);

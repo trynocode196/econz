@@ -733,7 +733,7 @@ function CreateDealModal({ onClose, onCreated }: { onClose: () => void; onCreate
                 value={stage}
                 onChange={(e) => setStage(e.target.value)}
                 className="input-orbit"
-                style={{ width: '100%', padding: '0.65rem 1rem', fontSize: '0.9rem', cursor: 'pointer' }}
+                style={{ width: '100%', minHeight: '2.75rem', padding: '0.5rem 0.85rem', fontSize: '0.875rem', cursor: 'pointer', lineHeight: 1.5 }}
               >
                 {stages.map(s => (
                   <option key={s._id || s.name} value={s.name}>{s.name}</option>

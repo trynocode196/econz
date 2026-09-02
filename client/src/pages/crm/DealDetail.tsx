@@ -535,7 +535,7 @@ export default function DealDetail() {
                 value={editForm.stage}
                 onChange={e => setEditForm(prev => ({ ...prev, stage: e.target.value }))}
                 className="input-orbit"
-                style={{ width: '100%', height: '2.5rem', fontSize: '0.875rem', cursor: 'pointer' }}
+                style={{ width: '100%', minHeight: '2.75rem', padding: '0.5rem 0.85rem', fontSize: '0.875rem', cursor: 'pointer', lineHeight: 1.5 }}
               >
                 {stages.map(s => (
                   <option key={s._id || s.name} value={s.name}>{s.name}</option>
@@ -842,7 +842,7 @@ export default function DealDetail() {
                 value={taskForm.taskType}
                 onChange={e => setTaskForm(prev => ({ ...prev, taskType: e.target.value }))}
                 className="input-orbit"
-                style={{ width: '100%', height: '2.5rem', fontSize: '0.875rem' }}
+                style={{ width: '100%', minHeight: '2.75rem', padding: '0.5rem 0.85rem', fontSize: '0.875rem', cursor: 'pointer', lineHeight: 1.5 }}
               >
                 <option value="To do">To do</option>
                 <option value="Call">Call</option>
