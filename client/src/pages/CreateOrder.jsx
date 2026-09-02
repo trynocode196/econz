@@ -1108,33 +1108,6 @@ export default function CreateOrder() {
       {/* ── STEP 3: Contract Preview ── */}
       {step === 3 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <div className="card card-p">
-            <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '1rem' }} className="dark:text-white">
-              Choose Legal Template
-            </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }} className="grid-4">
-              {templates.map(t => (
-                <label key={t._id} className="radio-pill" style={{ cursor: 'pointer' }}>
-                  <input
-                    type="radio"
-                    name="legal-template"
-                    value={t.name}
-                    checked={selectedTemplate === t.name}
-                    onChange={() => setSelectedTemplate(t.name)}
-                  />
-                  <div style={{
-                    padding: '1rem', borderRadius: '1rem', border: '2px solid',
-                    borderColor: selectedTemplate === t.name ? 'var(--brand-600)' : 'var(--slate-200)',
-                    background: selectedTemplate === t.name ? 'var(--brand-50)' : 'white'
-                  }} className={selectedTemplate === t.name ? 'dark:bg-brand-500/10 dark:border-brand-500' : 'dark:bg-slate-800 dark:border-slate-700'}>
-                    <h4 style={{ fontSize: '0.875rem', fontWeight: 700 }} className="dark:text-white">{t.name}</h4>
-                    <p style={{ fontSize: '0.7rem', color: 'var(--slate-500)', marginTop: '0.25rem' }}>{t.desc}</p>
-                  </div>
-                </label>
-              ))}
-            </div>
-          </div>
-
           {/* Full-Page Legal Agreement Preview */}
           <div style={{ background: '#f8fafc', padding: '2rem 1rem', borderRadius: '1rem', display: 'flex', justifyContent: 'center' }} className="dark:bg-slate-900/40">
             <DocumentContractView
