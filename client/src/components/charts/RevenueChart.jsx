@@ -11,15 +11,18 @@ import { Bar } from 'react-chartjs-2';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
-export default function RevenueChart({ data }) {
+export default function RevenueChart({ labels, data }) {
+  const chartLabels = labels && labels.length > 0 ? labels : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+  const chartValues = data && data.length > 0 ? data : [180, 210, 240, 235, 260, 280];
+
   const chartData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    labels: chartLabels,
     datasets: [
       {
-        data: data || [180, 210, 240, 235, 260, 280],
+        data: chartValues,
         backgroundColor: '#0284c7',
-        borderRadius: 12,
-        barThickness: 30,
+        borderRadius: 8,
+        barThickness: 28,
       },
     ],
   };
@@ -31,6 +34,14 @@ export default function RevenueChart({ data }) {
       legend: {
         display: false,
       },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            const raw = context.raw || 0;
+            return ` ₹${raw.toLocaleString('en-IN')}`;
+          }
+        }
+      }
     },
     scales: {
       y: {

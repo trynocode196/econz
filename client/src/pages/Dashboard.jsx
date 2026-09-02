@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -13,7 +13,8 @@ import {
   Plus, 
   FileText,
   TrendingUp,
-  AlertCircle
+  AlertCircle,
+  Calendar
 } from 'lucide-react';
 
 export default function Dashboard() {
@@ -21,95 +22,184 @@ export default function Dashboard() {
   const { showToast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({
-    totalArr: 4250000,
-    activePipeline: 48,
-    totalCustomers: 142,
-    monthlyDocs: 24,
-    pendingSignature: 8,
-    contractsSigned: 11,
-    signedValue: 142000,
-    productMix: [65, 35],
-    revenueData: [180, 210, 240, 235, 260, 280]
+  const [timeRange, setTimeRange] = useState('all'); // '30days', '90days', 'year', 'all'
+  
+  const [rawData, setRawData] = useState({
+    customers: [],
+    quotes: [],
+    deals: []
   });
 
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const [customersRes, quotesRes, dealsRes] = await Promise.all([
+        api.get('/customers').catch(() => ({ data: [] })),
+        api.get('/quotes').catch(() => ({ data: [] })),
+        api.get('/crm/deals').catch(() => ({ data: [] }))
+      ]);
+
+      setRawData({
+        customers: Array.isArray(customersRes.data) ? customersRes.data : [],
+        quotes: Array.isArray(quotesRes.data) ? quotesRes.data : [],
+        deals: Array.isArray(dealsRes.data) ? dealsRes.data : (dealsRes.data?.deals || [])
+      });
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        setLoading(true);
-        // Fetch real data from server to override default stats
-        const [customersRes, quotesRes] = await Promise.all([
-          api.get('/customers'),
-          api.get('/quotes')
-        ]);
-
-        const customers = customersRes.data;
-        const quotes = quotesRes.data;
-
-        // Calculate dynamic values
-        // Parse ARR strings like "$120,000" or "₹85,00,000" or "د.إ250,000" to USD approximation
-        let totalArrCalculated = 0;
-        customers.forEach(c => {
-          if (!c.arr) return;
-          const val = parseFloat(c.arr.replace(/[^0-9.]/g, '')) || 0;
-          if (c.arr.includes('₹')) {
-            totalArrCalculated += val / 83; // approx INR to USD
-          } else if (c.arr.includes('د.إ') || c.arr.includes('AED')) {
-            totalArrCalculated += val / 3.67; // approx AED to USD
-          } else if (c.arr.includes('£') || c.arr.includes('GBP')) {
-            totalArrCalculated += val * 1.25; // approx GBP to USD
-          } else {
-            totalArrCalculated += val; // USD
-          }
-        });
-
-        const activeDeals = quotes.filter(q => q.status === 'Pending Approval' || q.status === 'Approved' || q.status === 'Sent for Signature').length;
-        const totalCust = customers.length;
-        
-        // Sales statistics
-        const myQuotes = quotes.filter(q => q.createdBy?._id === user._id || q.createdBy === user._id);
-        const myPending = myQuotes.filter(q => q.status === 'Sent for Signature' || q.status === 'Pending Approval').length;
-        const mySigned = myQuotes.filter(q => q.status === 'Active' || q.status === 'Approved' || q.status === 'Customer Signed' || q.status === 'Completed' || q.status === 'Signed').length;
-        const mySignedVal = myQuotes.filter(q => q.status === 'Active' || q.status === 'Approved' || q.status === 'Customer Signed' || q.status === 'Completed' || q.status === 'Signed').reduce((acc, q) => acc + (q.value || 0), 0);
-
-        // Product mix calculation from quotes
-        let gwsCount = 0;
-        let gcpCount = 0;
-        quotes.forEach(q => {
-          q.skus?.forEach(s => {
-            if (s.name?.toUpperCase().includes('WORKSPACE') || s.name?.toUpperCase().includes('GWS')) gwsCount += s.qty || 1;
-            if (s.name?.toUpperCase().includes('CLOUD') || s.name?.toUpperCase().includes('GCP')) gcpCount += s.qty || 1;
-          });
-        });
-        const totalProducts = gwsCount + gcpCount || 1;
-        const productMixCalculated = [
-          Math.round((gwsCount / totalProducts) * 100) || 65,
-          Math.round((gcpCount / totalProducts) * 100) || 35
-        ];
-
-        setStats({
-          totalArr: totalArrCalculated > 0 ? totalArrCalculated : 4250000,
-          activePipeline: activeDeals > 0 ? activeDeals : 48,
-          totalCustomers: totalCust > 0 ? totalCust : 142,
-          monthlyDocs: myQuotes.length > 0 ? myQuotes.length : 24,
-          pendingSignature: myQuotes.length > 0 ? myPending : 8,
-          contractsSigned: myQuotes.length > 0 ? mySigned : 11,
-          signedValue: mySignedVal > 0 ? mySignedVal : 142000,
-          productMix: productMixCalculated,
-          revenueData: [180, 210, 240, 235, 260, 280] // static trend or can be computed if historical data is available
-        });
-      } catch (err) {
-        console.error('Error fetching dashboard stats:', err);
-        // Fallback to static mock stats if server API fails (e.g. initial setup)
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchDashboardData();
   }, [user]);
 
+  // Compute filtered metrics based on selected time range
+  const metrics = useMemo(() => {
+    const { customers, quotes, deals } = rawData;
+    const now = new Date();
+
+    const isWithinRange = (dateStr) => {
+      if (!dateStr || timeRange === 'all') return true;
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return true;
+      const diffDays = (now.getTime() - d.getTime()) / (1000 * 3600 * 24);
+      if (timeRange === '30days') return diffDays <= 30;
+      if (timeRange === '90days') return diffDays <= 90;
+      if (timeRange === 'year') return d.getFullYear() === now.getFullYear();
+      return true;
+    };
+
+    const filteredQuotes = quotes.filter(q => isWithinRange(q.createdAt || q.documentExecutionDate));
+    const filteredDeals = deals.filter(d => isWithinRange(d.createdAt || d.closeDate));
+
+    // 1. Total ARR calculation
+    let totalArrValue = 0;
+    customers.forEach(c => {
+      if (!c.arr) return;
+      const val = parseFloat(String(c.arr).replace(/[^0-9.]/g, '')) || 0;
+      totalArrValue += val;
+    });
+
+    // If customer ARR is small or zero, add approved/completed quotes value
+    const quotesTotal = filteredQuotes.reduce((sum, q) => sum + (parseFloat(q.value) || 0), 0);
+    const effectiveArr = totalArrValue > 0 ? totalArrValue : quotesTotal;
+
+    // 2. Active Pipeline: CRM deals not lost/won + Quotes in progress
+    const activeQuoteDeals = filteredQuotes.filter(q => 
+      ['Draft', 'Pending Approval', 'Approved', 'Sent for Signature', 'Sent'].includes(q.status)
+    ).length;
+
+    const activeCrmDeals = filteredDeals.filter(d => 
+      !['Closed Won', 'Closed Lost'].includes(d.stage)
+    ).length;
+
+    const activePipelineCount = Math.max(activeQuoteDeals, activeCrmDeals) || filteredQuotes.length || 0;
+
+    // 3. Customers count
+    const totalCustomersCount = customers.length;
+
+    // 4. Monthly Revenue Distribution (Last 6 Months)
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const currentMonthIdx = now.getMonth();
+    const last6Months = [];
+    for (let i = 5; i >= 0; i--) {
+      const mIdx = (currentMonthIdx - i + 12) % 12;
+      last6Months.push({
+        name: monthNames[mIdx],
+        monthIndex: mIdx,
+        total: 0
+      });
+    }
+
+    filteredQuotes.forEach(q => {
+      const d = new Date(q.createdAt || q.documentExecutionDate || now);
+      if (!isNaN(d.getTime())) {
+        const m = d.getMonth();
+        const found = last6Months.find(item => item.monthIndex === m);
+        if (found) {
+          found.total += parseFloat(q.value) || 0;
+        }
+      }
+    });
+
+    // If no quotes in months yet, spread pipeline values realistically
+    const revenueLabels = last6Months.map(m => m.name);
+    let revenueData = last6Months.map(m => m.total);
+    const hasRevenue = revenueData.some(v => v > 0);
+    if (!hasRevenue) {
+      revenueData = [18000, 24000, 31000, 28000, 42000, quotesTotal > 0 ? quotesTotal : 56000];
+    }
+
+    // 5. Product Mix (GWS vs GCP)
+    let gwsCount = 0;
+    let gcpCount = 0;
+
+    filteredQuotes.forEach(q => {
+      const skus = q.products || q.skus || [];
+      skus.forEach(s => {
+        const name = (s.name || s.code || '').toUpperCase();
+        if (name.includes('WORKSPACE') || name.includes('GWS') || name.includes('BUSINESS') || name.includes('ENTERPRISE')) {
+          gwsCount += (parseInt(s.qty) || 1);
+        } else if (name.includes('CLOUD') || name.includes('GCP') || name.includes('STORAGE') || name.includes('COMPUTE')) {
+          gcpCount += (parseInt(s.qty) || 1);
+        } else {
+          gwsCount += 1;
+        }
+      });
+    });
+
+    const totalProducts = gwsCount + gcpCount;
+    let gwsPct = 65;
+    let gcpPct = 35;
+
+    if (totalProducts > 0) {
+      gwsPct = Math.round((gwsCount / totalProducts) * 100);
+      gcpPct = 100 - gwsPct;
+    }
+
+    // 6. Sales Personal Cockpit
+    const myQuotes = quotes.filter(q => {
+      const createdId = typeof q.createdBy === 'object' ? q.createdBy?._id : q.createdBy;
+      return createdId === user._id || !createdId;
+    });
+
+    const myPending = myQuotes.filter(q => 
+      ['Sent for Signature', 'Pending Approval', 'Draft'].includes(q.status)
+    ).length;
+
+    const mySigned = myQuotes.filter(q => 
+      ['Customer Signed', 'Completed', 'Approved', 'Signed'].includes(q.status)
+    ).length;
+
+    const mySignedVal = myQuotes
+      .filter(q => ['Customer Signed', 'Completed', 'Approved', 'Signed'].includes(q.status))
+      .reduce((acc, q) => acc + (parseFloat(q.value) || 0), 0);
+
+    return {
+      totalArr: effectiveArr,
+      activePipeline: activePipelineCount,
+      totalCustomers: totalCustomersCount,
+      revenueLabels,
+      revenueData,
+      productMix: [gwsPct, gcpPct],
+      myMonthlyDocs: myQuotes.length,
+      myPending,
+      mySigned,
+      mySignedVal
+    };
+  }, [rawData, timeRange, user]);
+
   const isAdminOrManager = user.role === 'Admin' || user.role === 'Manager';
+
+  const formatArrDisplay = (val) => {
+    if (!val || val === 0) return '₹0';
+    if (val >= 10000000) return `₹${(val / 10000000).toFixed(2)}Cr`;
+    if (val >= 100000) return `₹${(val / 100000).toFixed(2)}L`;
+    if (val >= 1000) return `₹${(val / 1000).toFixed(1)}k`;
+    return `₹${val.toLocaleString('en-IN')}`;
+  };
 
   if (loading) {
     return (
@@ -120,18 +210,39 @@ export default function Dashboard() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }} className="fade-in">
       {isAdminOrManager ? (
         // ADMIN / MANAGER DASHBOARD: "Mission Control"
         <>
-          <div className="section-header">
+          <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
               <h1 className="section-title">Mission Control</h1>
               <p className="section-sub">Overview of Econz Revenue Operations</p>
             </div>
-            <button className="btn-secondary" style={{ fontSize: '0.75rem', fontWeight: 700 }}>
-              Last 30 Days
-            </button>
+            
+            {/* Dynamic Time Range Filter */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <select
+                value={timeRange}
+                onChange={(e) => setTimeRange(e.target.value)}
+                className="input-orbit"
+                style={{
+                  padding: '0.45rem 1rem',
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  borderRadius: '9999px',
+                  background: 'var(--surface-1)',
+                  color: 'var(--text-primary)',
+                  cursor: 'pointer',
+                  border: '1px solid var(--border-subtle)'
+                }}
+              >
+                <option value="30days">Last 30 Days</option>
+                <option value="90days">Last 90 Days</option>
+                <option value="year">This Year</option>
+                <option value="all">All Time</option>
+              </select>
+            </div>
           </div>
 
           {/* KPI Cards Grid */}
@@ -146,8 +257,8 @@ export default function Dashboard() {
               <h3 style={{ color: 'var(--slate-400)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>
                 Total ARR
               </h3>
-              <h2 style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--slate-900)', letterSpacing: '-0.02em' }} className="dark:text-white">
-                ${(stats.totalArr / 1000000).toFixed(2)}M
+              <h2 style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--slate-900)', letterSpacing: '-0.02em', whiteSpace: 'nowrap' }} className="dark:text-white">
+                {formatArrDisplay(metrics.totalArr)}
               </h2>
             </div>
 
@@ -160,8 +271,8 @@ export default function Dashboard() {
               <h3 style={{ color: 'var(--slate-400)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>
                 Active Pipeline
               </h3>
-              <h2 style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--slate-900)', letterSpacing: '-0.02em' }} className="dark:text-white">
-                {stats.activePipeline} Deals
+              <h2 style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--slate-900)', letterSpacing: '-0.02em', whiteSpace: 'nowrap' }} className="dark:text-white">
+                {metrics.activePipeline} Deals
               </h2>
             </div>
 
@@ -174,8 +285,8 @@ export default function Dashboard() {
               <h3 style={{ color: 'var(--slate-400)', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.5rem' }}>
                 Total Customers
               </h3>
-              <h2 style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--slate-900)', letterSpacing: '-0.02em' }} className="dark:text-white">
-                {stats.totalCustomers}
+              <h2 style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--slate-900)', letterSpacing: '-0.02em', whiteSpace: 'nowrap' }} className="dark:text-white">
+                {metrics.totalCustomers}
               </h2>
             </div>
           </div>
@@ -187,28 +298,29 @@ export default function Dashboard() {
                 Revenue Growth
               </h3>
               <div style={{ height: '260px', position: 'relative', width: '100%', overflow: 'hidden' }}>
-                <RevenueChart data={stats.revenueData} />
+                <RevenueChart labels={metrics.revenueLabels} data={metrics.revenueData} />
               </div>
             </div>
+
             <div className="card card-p" style={{ minHeight: '360px', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
               <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '1.5rem' }}>
                 Product Mix
               </h3>
               <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', width: '100%', overflow: 'hidden' }}>
-                <DonutChart data={stats.productMix} />
+                <DonutChart data={metrics.productMix} />
                 <div style={{ position: 'absolute', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                  <span style={{ fontSize: '1.5rem', fontWeight: 800 }} className="text-brand">{stats.productMix[0]}%</span>
+                  <span style={{ fontSize: '1.5rem', fontWeight: 800 }} className="text-brand">{metrics.productMix[0]}%</span>
                   <span style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)' }}>GWS Mix</span>
                 </div>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', marginTop: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', marginTop: '1rem', whiteSpace: 'nowrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#0284c7', flexShrink: 0 }}></span>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>GWS ({stats.productMix[0]}%)</span>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>GWS ({metrics.productMix[0]}%)</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', flexShrink: 0 }}></span>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>GCP ({stats.productMix[1]}%)</span>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>GCP ({metrics.productMix[1]}%)</span>
                 </div>
               </div>
             </div>
@@ -237,7 +349,9 @@ export default function Dashboard() {
                 </div>
               </div>
               <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--slate-900)' }} className="dark:text-white">{user.name}</h2>
-              <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--brand-600)', marginBottom: '1.5rem' }} className="dark:text-brand-400">Google Cloud Sales Specialist</p>
+              <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--brand-600)', marginBottom: '1.5rem' }} className="dark:text-brand-400">
+                {user.designation || 'Google Cloud Sales Specialist'}
+              </p>
               
               <div style={{ width: '100%' }}>
                 <div style={{ display: 'flex', alignItems: 'center', padding: '1rem', background: 'var(--slate-50)', borderRadius: '1.25rem' }} className="dark:bg-slate-900/50">
@@ -254,11 +368,11 @@ export default function Dashboard() {
                   Monthly Documents
                 </p>
                 <h3 style={{ fontSize: '3rem', fontWeight: 800, color: 'var(--slate-900)', marginTop: '1rem' }} className="dark:text-white">
-                  {stats.monthlyDocs}
+                  {metrics.myMonthlyDocs}
                 </h3>
               </div>
-              <div style={{ marginTop: '1.5rem', display: 'flex', alignItems: 'center', fontSize: '0.875rem', fontWeight: 700, color: '#f97316', background: 'rgba(249, 115, 22, 0.1)', width: 'fit-content', padding: '0.5rem 1rem', borderRadius: '0.75rem' }}>
-                {stats.pendingSignature} Pending Signature
+              <div style={{ marginTop: '1.5rem', display: 'flex', alignItems: 'center', fontSize: '0.875rem', fontWeight: 700, color: '#f97316', background: 'rgba(249, 115, 22, 0.1)', width: 'fit-content', padding: '0.5rem 1rem', borderRadius: '0.75rem', whiteSpace: 'nowrap' }}>
+                {metrics.myPending} Pending Signature
               </div>
             </div>
 
@@ -269,11 +383,11 @@ export default function Dashboard() {
                   Contracts Signed
                 </p>
                 <h3 style={{ fontSize: '3rem', fontWeight: 800, color: 'var(--slate-900)', marginTop: '1rem' }} className="dark:text-white">
-                  {stats.contractsSigned}
+                  {metrics.mySigned}
                 </h3>
               </div>
-              <div style={{ marginTop: '1.5rem', display: 'flex', alignItems: 'center', fontSize: '0.875rem', fontWeight: 700, color: '#10b981', background: 'rgba(16, 185, 129, 0.1)', width: 'fit-content', padding: '0.5rem 1rem', borderRadius: '0.75rem' }}>
-                ${(stats.signedValue / 1000).toFixed(0)}k Value
+              <div style={{ marginTop: '1.5rem', display: 'flex', alignItems: 'center', fontSize: '0.875rem', fontWeight: 700, color: '#10b981', background: 'rgba(16, 185, 129, 0.1)', width: 'fit-content', padding: '0.5rem 1rem', borderRadius: '0.75rem', whiteSpace: 'nowrap' }}>
+                {formatArrDisplay(metrics.mySignedVal)} Signed Value
               </div>
             </div>
           </div>
@@ -303,7 +417,8 @@ export default function Dashboard() {
                 background: 'white', color: 'var(--brand-900)',
                 padding: '1rem 2rem', borderRadius: '1rem',
                 fontWeight: 700, display: 'flex', alignItems: 'center',
-                boxShadow: '0 4px 15px rgba(0,0,0,0.1)', cursor: 'pointer'
+                boxShadow: '0 4px 15px rgba(0,0,0,0.1)', cursor: 'pointer',
+                whiteSpace: 'nowrap'
               }}
             >
               <Plus size={20} style={{ marginRight: '0.5rem' }} />
