@@ -79,6 +79,24 @@
 
   /* Transition */
   --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* CRM & App System Variables (Light) */
+  --app-bg: var(--surface-0);
+  --app-card-bg: var(--surface-1);
+  --app-card-border: var(--border-subtle);
+  --app-card-shadow: var(--shadow-soft);
+  --app-text: var(--text-primary);
+  --app-text-soft: var(--text-secondary);
+  --app-text-muted: var(--text-muted);
+  --app-accent: var(--brand-500);
+  --app-active-soft: var(--brand-50);
+  --app-active-text: var(--brand-600);
+  --app-hover: var(--surface-2);
+  --app-input-bg: var(--input-bg);
+  --app-divider: var(--border-subtle);
+  --app-chip-bg: var(--surface-2);
+  --app-panel-bg: var(--surface-1);
+  --app-border: var(--border-subtle);
 }
 
 /* ============================================================
@@ -114,6 +132,24 @@ body.dark {
   --input-bg:     #0f1c34;
   --input-border: rgba(34,211,238,0.12);
   --input-text:   #e2f0f8;
+
+  /* CRM & App System Variables (Dark) */
+  --app-bg: var(--surface-0);
+  --app-card-bg: var(--surface-1);
+  --app-card-border: var(--border-subtle);
+  --app-card-shadow: var(--shadow-soft);
+  --app-text: var(--text-primary);
+  --app-text-soft: var(--text-secondary);
+  --app-text-muted: var(--text-muted);
+  --app-accent: var(--brand-400);
+  --app-active-soft: rgba(14, 165, 233, 0.15);
+  --app-active-text: var(--brand-300);
+  --app-hover: var(--surface-2);
+  --app-input-bg: var(--input-bg);
+  --app-divider: var(--border-subtle);
+  --app-chip-bg: var(--surface-2);
+  --app-panel-bg: var(--surface-1);
+  --app-border: var(--border-subtle);
 
   /* Sidebar — stays dark navy regardless */
   --sidebar-bg:        #080f1f;

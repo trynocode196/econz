@@ -17,7 +17,8 @@ import {
   LogOut,
   Globe,
   Layers,
-  Headset
+  Headset,
+  Kanban
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -34,6 +35,7 @@ export default function Sidebar() {
         { to: '/dashboard', label: 'DASHBOARD', icon: Globe },
         { to: '/create-order', label: 'CREATE ORDER', icon: PlusCircle },
         { to: '/quotes', label: 'DOCUMENTS', icon: FileText },
+        { to: '/crm', label: 'CRM', icon: Kanban },
         { to: '/customers', label: 'CUSTOMERS', icon: Users },
         { to: '/products', label: 'PRODUCT CATALOG', icon: Tag },
         { to: '/margin', label: 'MARGIN', icon: Layers },
@@ -45,6 +47,7 @@ export default function Sidebar() {
       return [
         { to: '/dashboard', label: 'Dashboard', icon: PieChart },
         { to: '/create-order', label: 'Create Order', icon: PlusCircle },
+        { to: '/crm', label: 'CRM Leads & Deals', icon: Kanban },
         { to: '/quotes', label: 'Team Documents', icon: FileText },
         { to: '/customers', label: 'Customers', icon: Users },
       ];
@@ -53,6 +56,7 @@ export default function Sidebar() {
       return [
         { to: '/dashboard', label: 'Dashboard', icon: Home },
         { to: '/create-order', label: 'Create Order', icon: PlusCircle },
+        { to: '/crm', label: 'CRM Leads & Deals', icon: Kanban },
         { to: '/customers', label: 'Customers', icon: List },
         { to: '/quotes', label: 'My Documents', icon: FileText },
       ];

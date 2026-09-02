@@ -15,6 +15,8 @@ import Users from './pages/Users';
 import Teams from './pages/Teams';
 import DocumentsDeal from './pages/DocumentsDeal';
 import Margin from './pages/Margin';
+import LeadsPipeline from './pages/crm/LeadsPipeline';
+import DealDetail from './pages/crm/DealDetail';
 
 export default function App() {
   return (
@@ -35,6 +37,8 @@ export default function App() {
                 <Route path="create-order" element={<CreateOrder />} />
                 <Route path="quotes/:quoteId/edit" element={<CreateOrder />} />
                 <Route path="quotes" element={<Quotes />} />
+                <Route path="crm" element={<LeadsPipeline />} />
+                <Route path="crm/deals/:id" element={<DealDetail />} />
                 <Route path="customers" element={<Customers />} />
                 <Route path="products" element={<ProductCatalog />} />
                 <Route path="templates" element={<Templates />} />

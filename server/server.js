@@ -24,6 +24,7 @@ app.use('/api/products', require('./routes/products'));
 app.use('/api/templates', require('./routes/templates'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/margins', require('./routes/margins'));
+app.use('/api/crm', require('./routes/crm'));
 
 // DB status
 app.get('/api/db-status', (req, res) => {

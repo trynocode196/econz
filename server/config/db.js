@@ -424,7 +424,90 @@ const mockDB = {
     { _id: '6655c65f9000000000000021', country: 'UAE', psnb: 15, bt: 5, renewal: 8 },
     { _id: '6655c65f9000000000000022', country: 'UK', psnb: 10, bt: 4, renewal: 6 },
     { _id: '6655c65f9000000000000023', country: 'USA', psnb: 14, bt: 4, renewal: 8 }
-  ]
+  ],
+  CrmStage: [
+    { _id: '6655c65f9000000000000040', name: 'New Lead', color: '#8A8177', order: 0, kind: 'open' },
+    { _id: '6655c65f9000000000000041', name: 'First Email Sent', color: '#2AA9C4', order: 1, kind: 'open' },
+    { _id: '6655c65f9000000000000042', name: 'Meeting Scheduled', color: '#8B5CF6', order: 2, kind: 'open' },
+    { _id: '6655c65f9000000000000043', name: 'Meeting done', color: '#4C6FE7', order: 3, kind: 'open' },
+    { _id: '6655c65f9000000000000044', name: 'Quotation sent', color: '#E8A23D', order: 4, kind: 'open' },
+    { _id: '6655c65f9000000000000045', name: 'In negotiation', color: '#3B5BDB', order: 5, kind: 'open' },
+    { _id: '6655c65f9000000000000046', name: 'Won', color: '#1F8A4C', order: 6, kind: 'won' },
+    { _id: '6655c65f9000000000000047', name: 'Lost', color: '#D84A5B', order: 7, kind: 'lost' },
+  ],
+  CrmDeal: [
+    {
+      _id: '6655c65f9000000000000050',
+      name: 'Acme Corp Cloud Expansion',
+      stage: 'New Lead',
+      amount: 45000,
+      currency: 'USD',
+      closeDate: '2026-10-15',
+      contact: { name: 'John Smith', email: 'john@acmecorp.com', phone: '+1-555-0101' },
+      company: { name: 'Acme Corp' },
+      owner: '6655c65f9000000000000001',
+      isWon: false,
+      isLost: false,
+      createdAt: new Date('2026-08-20T10:00:00Z')
+    },
+    {
+      _id: '6655c65f9000000000000051',
+      name: 'TechVentures Google Workspace Enterprise',
+      stage: 'First Email Sent',
+      amount: 18000,
+      currency: 'USD',
+      closeDate: '2026-09-30',
+      contact: { name: 'Priya Sharma', email: 'priya@techventures.in' },
+      company: { name: 'TechVentures Ltd' },
+      owner: '6655c65f9000000000000001',
+      isWon: false,
+      isLost: false,
+      createdAt: new Date('2026-08-22T10:00:00Z')
+    },
+    {
+      _id: '6655c65f9000000000000052',
+      name: 'Dubai Dynamics Infrastructure Migration',
+      stage: 'Meeting Scheduled',
+      amount: 65000,
+      currency: 'USD',
+      closeDate: '2026-11-01',
+      contact: { name: 'Ahmed Al-Rashid', email: 'ahmed@dubaidynamics.ae' },
+      company: { name: 'Dubai Dynamics' },
+      owner: '6655c65f9000000000000001',
+      isWon: false,
+      isLost: false,
+      createdAt: new Date('2026-08-25T10:00:00Z')
+    },
+    {
+      _id: '6655c65f9000000000000053',
+      name: 'GlobalEdge UK Security & Archiving',
+      stage: 'Quotation sent',
+      amount: 22000,
+      currency: 'USD',
+      closeDate: '2026-09-15',
+      contact: { name: 'Sarah Brown', email: 'sarah@globaledge.co.uk' },
+      company: { name: 'GlobalEdge UK' },
+      owner: '6655c65f9000000000000001',
+      isWon: false,
+      isLost: false,
+      createdAt: new Date('2026-08-15T10:00:00Z')
+    },
+    {
+      _id: '6655c65f9000000000000054',
+      name: 'Trynocode Annual AppSheet Licensing',
+      stage: 'Won',
+      amount: 32000,
+      currency: 'USD',
+      closeDate: '2026-08-28',
+      contact: { name: 'Pranav', email: 'impswaroop@gmail.com' },
+      company: { name: 'Trynocode' },
+      owner: '6655c65f9000000000000001',
+      isWon: true,
+      isLost: false,
+      createdAt: new Date('2026-08-01T10:00:00Z')
+    }
+  ],
+  CrmActivity: []
 };
 
 // Helper function to match mongodb-like queries in memory
@@ -528,8 +611,11 @@ function setupMockDB() {
   require('../models/Template');
   require('../models/Quote');
   require('../models/Margin');
+  require('../models/CrmDeal');
+  require('../models/CrmStage');
+  require('../models/CrmActivity');
 
-  const models = ['User', 'Customer', 'Product', 'Template', 'Quote', 'Margin'];
+  const models = ['User', 'Customer', 'Product', 'Template', 'Quote', 'Margin', 'CrmDeal', 'CrmStage', 'CrmActivity'];
 
   models.forEach(modelName => {
     const Model = mongoose.model(modelName);
