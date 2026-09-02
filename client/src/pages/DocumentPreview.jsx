@@ -87,9 +87,105 @@ export default function DocumentPreview() {
   const gstAmt = subtotal * gstRate;
   const grandTotal = subtotal + gstAmt;
 
-  const sigHeaderStyle = { background: '#0e7490', color: 'white', padding: '0.5rem 1rem', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase' };
-  const sigCellStyle = { padding: '0.55rem 1rem', fontSize: '11px', color: '#334155', borderBottom: '1px solid #e2e8f0', verticalAlign: 'top' };
-  const sigLabelStyle = { ...sigCellStyle, fontWeight: 600, width: '25%' };
+  const clientName = quote.pocName || quote.customerName?.toUpperCase() || 'AMARJEET';
+  const clientTitle = quote.pocDesignation || 'Project Manager';
+  const econzSignerName = quote.econzSignerName || 'Srikar M';
+  const econzSignerTitle = quote.econzSignerTitle || 'Head - Revenue Operations';
+
+  // Underlined Signature Box Component
+  const renderSignatureSection = (isAnnexure = false) => (
+    <div style={{ border: '1px solid #0284c7', marginBottom: '2.5rem', background: '#ffffff' }}>
+      {/* Header Bar */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', background: '#0284c7', color: '#ffffff' }}>
+        <div style={{ padding: '0.45rem 1rem', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', borderRight: '1px solid rgba(255,255,255,0.3)' }}>
+          For and on behalf of CLIENT
+        </div>
+        <div style={{ padding: '0.45rem 1rem', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase' }}>
+          For and on behalf of ECONZ IT SERVICES PRIVATE LIMITED
+        </div>
+      </div>
+
+      {/* Content Columns with Underlines */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', padding: '1rem 1.25rem', gap: '2rem', fontSize: '11px', color: '#1e293b' }}>
+        {/* Left Column: Client */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+          <div>
+            <div style={{ color: '#475569', fontSize: '10px' }}>Signature:</div>
+            <div style={{ fontWeight: 600, marginTop: '0.15rem' }}>Signature:</div>
+            <div style={{ borderBottom: '1px solid #94a3b8', height: '14px', width: '90%' }}></div>
+          </div>
+
+          <div style={{ marginTop: '0.25rem' }}>
+            <div style={{ color: '#475569', fontSize: '10px' }}>Full Name:</div>
+            <div style={{ fontWeight: 800, textTransform: 'uppercase', marginTop: '0.15rem' }}>{clientName}</div>
+            <div style={{ borderBottom: '1px solid #94a3b8', width: '90%' }}></div>
+          </div>
+
+          <div style={{ marginTop: '0.25rem' }}>
+            <div style={{ color: '#475569', fontSize: '10px' }}>Title:</div>
+            <div style={{ fontWeight: 700, marginTop: '0.15rem' }}>{clientTitle}</div>
+            <div style={{ borderBottom: '1px solid #94a3b8', width: '90%' }}></div>
+          </div>
+
+          {!isAnnexure && (
+            <div style={{ marginTop: '0.25rem' }}>
+              <div style={{ color: '#475569', fontSize: '10px' }}>Date:</div>
+              <div style={{ fontWeight: 600, marginTop: '0.15rem' }}>Signature:</div>
+              <div style={{ borderBottom: '1px solid #94a3b8', height: '14px', width: '90%' }}></div>
+            </div>
+          )}
+        </div>
+
+        {/* Right Column: Econz */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+          <div>
+            <div style={{ color: '#475569', fontSize: '10px' }}>Signature:</div>
+            <div style={{ fontWeight: 600, marginTop: '0.15rem' }}>Signature:</div>
+            <div style={{ borderBottom: '1px solid #94a3b8', height: '14px', width: '90%' }}></div>
+          </div>
+
+          <div style={{ marginTop: '0.25rem' }}>
+            <div style={{ color: '#475569', fontSize: '10px' }}>Full Name:</div>
+            <div style={{ fontWeight: 800, marginTop: '0.15rem' }}>{econzSignerName}</div>
+            <div style={{ borderBottom: '1px solid #94a3b8', width: '90%' }}></div>
+          </div>
+
+          <div style={{ marginTop: '0.25rem' }}>
+            <div style={{ color: '#475569', fontSize: '10px' }}>Title:</div>
+            <div style={{ fontWeight: 700, marginTop: '0.15rem' }}>{econzSignerTitle}</div>
+            <div style={{ borderBottom: '1px solid #94a3b8', width: '90%' }}></div>
+          </div>
+
+          {!isAnnexure && (
+            <div style={{ marginTop: '0.25rem' }}>
+              <div style={{ color: '#475569', fontSize: '10px' }}>Date:</div>
+              <div style={{ fontWeight: 600, marginTop: '0.15rem' }}>Signature:</div>
+              <div style={{ borderBottom: '1px solid #94a3b8', height: '14px', width: '90%' }}></div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const thStyle = {
+    background: '#0284c7',
+    color: '#ffffff',
+    padding: '0.45rem 0.5rem',
+    fontSize: '10px',
+    fontWeight: 700,
+    textAlign: 'left',
+    borderRight: '1px solid #ffffff'
+  };
+
+  const tdStyle = {
+    padding: '0.55rem 0.65rem',
+    fontSize: '11px',
+    color: '#1e293b',
+    borderRight: '1px solid #e2e8f0',
+    borderBottom: '1px solid #e2e8f0',
+    verticalAlign: 'middle'
+  };
 
   return (
     <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%', paddingBottom: '3rem' }}>
@@ -330,14 +426,11 @@ export default function DocumentPreview() {
               <strong>2.2</strong> Each OEM's current terms of Service's and service level agreements are incorporated by reference and govern the Client's use of the respective OEM products. Econz shall notify the Client of any material changes to OEM terms with at least fifteen (15) days' written notice. The Client must accept the applicable OEM terms of service upon login.
             </p>
             <p style={{ margin: 0 }}>
-              <strong>2.3</strong> The Services shall include any additional tasks that the Parties may mutually agree to in writing from time to time. Any additional Services agreed shall be documented in a written order form or amendment signed by both Parties.
-            </p>
+              <strong>2.3</strong> The Services shall include any additional tasks that the Parties may mutually agree to in writing from time to time. Any additional Services agreed shall be documented in a written order form or amendment signed by both Parties.</p>
             <p style={{ margin: 0 }}>
-              <strong>2.4</strong> The Client must ensure and provide Econz with complete and uninterrupted access to the domain name credentials for OEM provisioning.
-            </p>
+              <strong>2.4</strong> The Client must ensure and provide Econz with complete and uninterrupted access to the domain name credentials for OEM provisioning.</p>
             <p style={{ margin: 0 }}>
-              <strong>2.5</strong> Except with respect to any service-related and pricing-related terms expressly set out under the respective schedule/s mentioned in Annexure A, in the event of any inconsistency or conflict between the terms of this Agreement and any schedule/s mentioned under Annexure A, the terms of this Agreement shall prevail.
-            </p>
+              <strong>2.5</strong> Except with respect to any service-related and pricing-related terms expressly set out under the respective schedule/s mentioned in Annexure A, in the event of any inconsistency or conflict between the terms of this Agreement and any schedule/s mentioned under Annexure A, the terms of this Agreement shall prevail.</p>
           </div>
         </div>
 
@@ -347,15 +440,9 @@ export default function DocumentPreview() {
             3. EFFECTIVE DATE AND TERM
           </h2>
           <div style={{ fontSize: '11px', color: '#334155', lineHeight: '1.7', textAlign: 'justify', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <p style={{ margin: 0 }}>
-              <strong>3.1</strong> The effective date of this Agreement shall be the date on which Econz first provides Services to the Client, which shall be ("Effective Date").
-            </p>
-            <p style={{ margin: 0 }}>
-              <strong>3.2</strong> This Agreement shall remain in full force and effect for a period of Months from the Effective Date, or until the expiry or termination of the last active schedule under Annexure A, whichever is later ("Term"). Each schedule under Annexure A shall independently specify the product-specific term applicable to that product line.
-            </p>
-            <p style={{ margin: 0 }}>
-              <strong>3.3</strong> Unless either Party provides written notice of non-renewal at least <strong>Yearly</strong> prior to the expiry of the term, this Agreement shall automatically renew for successive periods of one (1) year.
-            </p>
+            <p style={{ margin: 0 }}><strong>3.1</strong> The effective date of this Agreement shall be the date on which Econz first provides Services to the Client, which shall be ("Effective Date").</p>
+            <p style={{ margin: 0 }}><strong>3.2</strong> This Agreement shall remain in full force and effect for a period of Months from the Effective Date, or until the expiry or termination of the last active schedule under Annexure A, whichever is later ("Term"). Each schedule under Annexure A shall independently specify the product-specific term applicable to that product line.</p>
+            <p style={{ margin: 0 }}><strong>3.3</strong> Unless either Party provides written notice of non-renewal at least <strong>Yearly</strong> prior to the expiry of the term, this Agreement shall automatically renew for successive periods of one (1) year.</p>
           </div>
         </div>
 
@@ -365,243 +452,39 @@ export default function DocumentPreview() {
             4. FEES, INVOICING, AND PAYMENTS
           </h2>
           <div style={{ fontSize: '11px', color: '#334155', lineHeight: '1.7', textAlign: 'justify', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <p style={{ margin: 0 }}>
-              <strong>4.1</strong> The Client shall pay fees as set both in schedule A1 of Annexure A for the Services rendered by Econz. All Fees are exclusive of applicable taxes, including GST, which shall be levied at the then-applicable statutory rates.
-            </p>
-            <p style={{ margin: 0 }}>
-              <strong>4.2</strong> Econz shall raise invoices in advance for all OEM products being resold. The Client shall make payment within the date of receipt of the invoice. Econz shall issue a tax invoice with applicable IDS rates.
-            </p>
-            <p style={{ margin: 0 }}>
-              <strong>4.3</strong> Any additional gateway charges (credit/debit card or digital payment platforms) or bank transaction charges shall be borne by the Client.
-            </p>
-            <p style={{ margin: 0 }}>
-              <strong>4.4</strong> In the event of failure or delay in payment beyond the stipulated due date, late payment charges shall accrue at the rate of one and a half percent (1.5%) per month on the outstanding amount, until the date of actual receipt of the delayed payment by Econz.
-            </p>
-            <p style={{ margin: 0 }}>
-              <strong>4.5</strong> In event of non-payment beyond thirty (30) days from the invoice due date, Econz shall issue a written notice of suspension to the Client. In the event the Client fails to clear outstanding dues within fifteen (15) days of such notice, Econz shall be entitled to suspend access to the Services and, thereafter, to terminate the licence.
-            </p>
-            <p style={{ margin: 0 }}>
-              <strong>4.6</strong> Where the Client has committed to a specific product, stock keeping units ("SKU"), or user count for a defined period as mentioned under schedule A1 of Annexure A, the Client shall remain liable to pay for the entire committed quantity and period, irrespective of any mid-term reduction, termination, or suspension of the licence/s.
-            </p>
-            <p style={{ margin: 0 }}>
-              <strong>4.7</strong> In the event of any conflict between the general payment terms in this Clause 4 and the product-specific payment terms as mentioned under schedule A1 of Annexure A, the terms of schedule A1 of Annexure A shall prevail solely with respect to product-specific billing mechanics.
-            </p>
+            <p style={{ margin: 0 }}><strong>4.1</strong> The Client shall pay fees as set both in schedule A1 of Annexure A for the Services rendered by Econz. All Fees are exclusive of applicable taxes, including GST, which shall be levied at the then-applicable statutory rates.</p>
+            <p style={{ margin: 0 }}><strong>4.2</strong> Econz shall raise invoices in advance for all OEM products being resold. The Client shall make payment within the date of receipt of the invoice. Econz shall issue a tax invoice with applicable IDS rates.</p>
+            <p style={{ margin: 0 }}><strong>4.3</strong> Any additional gateway charges (credit/debit card or digital payment platforms) or bank transaction charges shall be borne by the Client.</p>
+            <p style={{ margin: 0 }}><strong>4.4</strong> In the event of failure or delay in payment beyond the stipulated due date, late payment charges shall accrue at the rate of one and a half percent (1.5%) per month on the outstanding amount, until the date of actual receipt of the delayed payment by Econz.</p>
+            <p style={{ margin: 0 }}><strong>4.5</strong> In event of non-payment beyond thirty (30) days from the invoice due date, Econz shall issue a written notice of suspension to the Client. In the event the Client fails to clear outstanding dues within fifteen (15) days of such notice, Econz shall be entitled to suspend access to the Services and, thereafter, to terminate the licence.</p>
+            <p style={{ margin: 0 }}><strong>4.6</strong> Where the Client has committed to a specific product, stock keeping units ("SKU"), or user count for a defined period as mentioned under schedule A1 of Annexure A, the Client shall remain liable to pay for the entire committed quantity and period, irrespective of any mid-term reduction, termination, or suspension of the licence/s.</p>
+            <p style={{ margin: 0 }}><strong>4.7</strong> In the event of any conflict between the general payment terms in this Clause 4 and the product-specific payment terms as mentioned under schedule A1 of Annexure A, the terms of schedule A1 of Annexure A shall prevail solely with respect to product-specific billing mechanics.</p>
           </div>
         </div>
 
-        {/* 5. REPRESENTATIONS AND WARRANTIES */}
+        {/* 5-13. OTHER CLAUSES */}
         <div style={{ marginBottom: '1.5rem' }}>
           <h2 style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', borderBottom: '2px solid #0ea5e9', paddingBottom: '0.25rem', marginBottom: '0.75rem', textTransform: 'uppercase' }}>
             5. REPRESENTATIONS AND WARRANTIES
           </h2>
-          <div style={{ fontSize: '11px', color: '#334155', lineHeight: '1.7', textAlign: 'justify', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <p style={{ margin: 0 }}>
-              <strong>5.1</strong> Each Party represents and warrants that: (a) it has full legal capacity and authority to enter into this Agreement; (b) this Agreement has been approved and executed by its duly authorised signatory; (c) it is duly incorporated, organized, and validly existing under applicable laws; and (d) it shall comply with all applicable laws, regulations, and governmental requirements in the jurisdictions of its operation throughout the Term.
-            </p>
-            <p style={{ margin: 0 }}>
-              <strong>5.2</strong> The Client shall provide Econz with all documentation required for empanelment, KYC, or be registered as approved at the time of onboarding of the Client.
-            </p>
-            <p style={{ margin: 0 }}>
-              <strong>5.3</strong> Neither Party shall take any action that could have an adverse effect on the name, reputation, or public image of the other Party.
-            </p>
-            <p style={{ margin: 0 }}>
-              <strong>5.4</strong> The Parties shall ensure to fully and promptly observe and comply with such general and specific regulations, instructions, or requirements from time to time, consistent with the terms of this Agreement and the Annexures hereto.
-            </p>
+          <div style={{ fontSize: '11px', color: '#334155', lineHeight: '1.7', textAlign: 'justify' }}>
+            <p style={{ margin: 0 }}><strong>5.1</strong> Each Party represents and warrants that: (a) it has full legal capacity and authority to enter into this Agreement; (b) this Agreement has been approved and executed by its duly authorised signatory; (c) it is duly incorporated, organized, and validly existing under applicable laws; and (d) it shall comply with all applicable laws, regulations, and governmental requirements.</p>
           </div>
         </div>
 
-        {/* 6. CONFIDENTIALITY OBLIGATIONS */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <h2 style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', borderBottom: '2px solid #0ea5e9', paddingBottom: '0.25rem', marginBottom: '0.75rem', textTransform: 'uppercase' }}>
-            6. CONFIDENTIALITY OBLIGATIONS
-          </h2>
-          <div style={{ fontSize: '11px', color: '#334155', lineHeight: '1.7', textAlign: 'justify', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <p style={{ margin: 0 }}>
-              <strong>6.1 "Confidential Information"</strong> shall mean and include any non-public business, technical, financial or product related information disclosed by the disclosing Party, or the end customer in connection with the Agreement, including trade secrets, Confidential Information respecting Intellectual Property Rights, inventions, products, data, algorithms, designs, know-how, techniques, systems, processes, software programs, works of authorship, customer lists, projects, plans and proposals and any notes, memoranda, reports, lists, records, drawings, sketches, specifications, data, documentation, and any information of any third party to whom disclosing Party is under an obligation to keep confidential.
-            </p>
-            <p style={{ margin: 0 }}>
-              <strong>6.2</strong> The receiving Party shall hold the disclosing Party's Confidential Information in strict confidence, use it solely for the purposes of this Agreement and disclose it only to those employees or authorised personnel who have a need to know and who are bound by confidentiality obligations no less protective than those in this Clause 6.
-            </p>
-            <p style={{ margin: 0 }}>
-              <strong>6.3</strong> Confidentiality obligations and restrictions shall not apply to Confidential Information that: (a) is or becomes publicly known through no fault of the receiving Party; (b) was already in the receiving Party's possession free of any confidentiality obligation at the time of disclosure; (c) is lawfully received from a third party free of any restriction; (d) is independently developed by the receiving Party without use of the Confidential Information; or (e) is required to be disclosed by applicable law, court order, or governmental authority.
-            </p>
-            <p style={{ margin: 0 }}>
-              <strong>6.4</strong> The obligations of this Clause 6 shall survive for a period of one (1) year following the termination or expiry of this Agreement.
-            </p>
-          </div>
-        </div>
-
-        {/* 7. INTELLECTUAL PROPERTY RIGHTS */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <h2 style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', borderBottom: '2px solid #0ea5e9', paddingBottom: '0.25rem', marginBottom: '0.75rem', textTransform: 'uppercase' }}>
-            7. INTELLECTUAL PROPERTY RIGHTS
-          </h2>
-          <div style={{ fontSize: '11px', color: '#334155', lineHeight: '1.7', textAlign: 'justify', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <p style={{ margin: 0 }}>
-              <strong>7.1</strong> Each Party retains sole and exclusive ownership of all intellectual property rights in its pre-existing works, technology, software, data, and materials. No rights, title, or interest in either Party's intellectual property is transferred or licensed to the other Party under this Agreement except to the limited extent expressly necessary to perform the Services.
-            </p>
-            <p style={{ margin: 0 }}>
-              <strong>7.2</strong> OEM products remain the exclusive intellectual property of the respective OEM and are governed solely by the applicable OEM terms of service.
-            </p>
-          </div>
-        </div>
-
-        {/* 8. DATA PRIVACY */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <h2 style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', borderBottom: '2px solid #0ea5e9', paddingBottom: '0.25rem', marginBottom: '0.75rem', textTransform: 'uppercase' }}>
-            8. DATA PRIVACY
-          </h2>
-          <div style={{ fontSize: '11px', color: '#334155', lineHeight: '1.7', textAlign: 'justify', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <p style={{ margin: 0 }}>
-              <strong>8.1</strong> Econz hereby agrees to take all necessary precautions to protect the Client's Confidential Information, Billing Data, and the KYC details of the authorized signatory of the Client, and implement reasonable security practices and measures that are commensurate with respect to the Confidential Information disclosure for the purpose of this Agreement.
-            </p>
-            <p style={{ margin: 0 }}>
-              <strong>8.2</strong> Econz shall take all reasonable steps to protect the confidential information provided by the Client from loss, misuse, and unauthorized access, disclosure, alteration, or destruction solely by Econz or its employees. Econz shall comply with all the regulations provided under the Information Technology Act 2000, Information Technology Rules, 2011 and Digital Personal Data Protection Act, 2023.
-            </p>
-            <p style={{ margin: 0 }}>
-              <strong>8.3</strong> The provisions under Clauses 8.1 and 8.2 shall apply only if the Client provides Econz with privileged access to the Client data.
-            </p>
-          </div>
-        </div>
-
-        {/* 9. INDEMNITY AND LIMITATION OF LIABILITY */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <h2 style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', borderBottom: '2px solid #0ea5e9', paddingBottom: '0.25rem', marginBottom: '0.75rem', textTransform: 'uppercase' }}>
-            9. INDEMNITY AND LIMITATION OF LIABILITY
-          </h2>
-          <div style={{ fontSize: '11px', color: '#334155', lineHeight: '1.7', textAlign: 'justify', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <p style={{ margin: 0 }}>
-              <strong>9.1</strong> Without prejudice to any other rights and remedies available to the Parties under this Agreement or law, either Party shall mutually indemnify, defend, and hold harmless the other Party and its directors, officers, employees, and permitted assigns against any claims, damages, liabilities, losses, penalties, costs, and proceedings arising from infringement, breach, negligence, fraud, misrepresentation, or unauthorized act.
-            </p>
-            <p style={{ margin: 0 }}>
-              <strong>9.2</strong> In no event shall either Party be liable to the other for any special, incidental, consequential, indirect, or punitive damages, including loss of profits, loss of revenue, loss of data, loss of goodwill, business interruption, or cost of substitute products or services.
-            </p>
-            <p style={{ margin: 0 }}>
-              <strong>9.3</strong> Notwithstanding any other provision, either Party's total aggregate liability to the other Party for direct damages arising under or in connection with any schedule under Annexure A shall not exceed the total Fees paid by the Client to Econz during the six (06) months immediately preceding the event giving rise to the claim under the respective schedule/s of Annexure A.
-            </p>
-            <p style={{ margin: 0 }}>
-              <strong>9.4</strong> No claim, regardless of form, arising under or in connection with this Agreement may be brought by either Party more than three (3) years after the date on which the cause of action occurred.
-            </p>
-            <p style={{ margin: 0 }}>
-              <strong>9.5</strong> Econz shall have no liability for any loss, damage, or disruption to the Client's IT environment resulting from alterations, additions, repairs, or maintenance carried out by any party other than by Econz's authorized personnel.
-            </p>
-          </div>
-        </div>
-
-        {/* 10. TERMINATION AND CONSEQUENCES */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <h2 style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', borderBottom: '2px solid #0ea5e9', paddingBottom: '0.25rem', marginBottom: '0.75rem', textTransform: 'uppercase' }}>
-            10. TERMINATION AND CONSEQUENCES
-          </h2>
-          <div style={{ fontSize: '11px', color: '#334155', lineHeight: '1.7', textAlign: 'justify', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <p style={{ margin: 0 }}>
-              <strong>10.1</strong> Either Party may terminate this Agreement and all active schedules under Annexure A immediately upon written notice if the other Party commits a material breach and fails to remedy such breach within thirty (30) days, becomes insolvent, discontinues business operations, or delays payment beyond the timelines stipulated in Clause 4.
-            </p>
-            <p style={{ margin: 0 }}>
-              <strong>10.2</strong> Where the Client has opted for a committed subscription and terminates the Agreement or any schedule prior to the expiry of the committed term, Econz shall invoice the Client for the true-up amount.
-            </p>
-            <p style={{ margin: 0 }}>
-              <strong>10.3</strong> Upon termination or expiry of this Agreement or any schedule under Annexure A, the Client shall remain obligated to pay all amounts due to Econz for the Services rendered, including all charges accrued up to the date on which the relevant OEM suspends or terminates access to the Client, the provisions of Clauses 4.5 and 4.6, Clause 6, Clause 7, Clause 8, Clause 9, and this Clause 10.3 shall survive the termination or expiry of this Agreement.
-            </p>
-            <p style={{ margin: 0 }}>
-              <strong>10.4</strong> Upon expiry or termination, either Party shall promptly return to the other all property, documentation, and confidential information of the disclosing Party in its possession.
-            </p>
-          </div>
-        </div>
-
-        {/* 11. DISPUTE RESOLUTION, GOVERNING LAW AND JURISDICTION */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <h2 style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', borderBottom: '2px solid #0ea5e9', paddingBottom: '0.25rem', marginBottom: '0.75rem', textTransform: 'uppercase' }}>
-            11. DISPUTE RESOLUTION, GOVERNING LAW AND JURISDICTION
-          </h2>
-          <div style={{ fontSize: '11px', color: '#334155', lineHeight: '1.7', textAlign: 'justify', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <p style={{ margin: 0 }}>
-              <strong>11.1</strong> The Parties shall first attempt to resolve any dispute through mutual consultation. If unresolved within thirty (30) days, either Party may resort to arbitration, wherein the Parties shall mutually appoint a sole arbitrator, in accordance with the Indian Arbitration and Conciliation Act, 1996. The seat for arbitration shall be Bengaluru, Karnataka, and the language of arbitration shall be English.
-            </p>
-            <p style={{ margin: 0 }}>
-              <strong>11.2</strong> This Agreement and all matters arising under it shall be governed by and construed in accordance with the laws of India. The Parties submit to the exclusive jurisdiction of the competent courts in Bengaluru, Karnataka, India.
-            </p>
-          </div>
-        </div>
-
-        {/* 12. FORCE MAJEURE */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <h2 style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', borderBottom: '2px solid #0ea5e9', paddingBottom: '0.25rem', marginBottom: '0.75rem', textTransform: 'uppercase' }}>
-            12. FORCE MAJEURE
-          </h2>
-          <div style={{ fontSize: '11px', color: '#334155', lineHeight: '1.7', textAlign: 'justify', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <p style={{ margin: 0 }}>
-              <strong>12.1</strong> Neither Party shall be liable for any delay or failure to perform its obligations under the Agreement to the extent that such delay or failure is caused by circumstances beyond the Party's reasonable control, including acts of God, natural disasters, war, civil unrest, epidemic or pandemic, acts of government, or power or internet outages.
-            </p>
-          </div>
-        </div>
-
-        {/* 13. GENERAL PROVISIONS */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <h2 style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', borderBottom: '2px solid #0ea5e9', paddingBottom: '0.25rem', marginBottom: '0.75rem', textTransform: 'uppercase' }}>
-            13. GENERAL PROVISIONS
-          </h2>
-          <div style={{ fontSize: '11px', color: '#334155', lineHeight: '1.7', textAlign: 'justify', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <p style={{ margin: 0 }}><strong>13.1 Non-Solicitation:</strong> During the Term and for one (01) year thereafter, neither Party shall directly or indirectly solicit, recruit, or offer employment to any employee of the other Party without prior written consent.</p>
-            <p style={{ margin: 0 }}><strong>13.2 Publicity:</strong> Either Party may use, with prior written consent, the other Party's name and logo in connection with this Agreement in accordance with applicable trademark guidelines.</p>
-            <p style={{ margin: 0 }}><strong>13.3 Relationship:</strong> Nothing in this Agreement creates a relationship of principal and agent, and employer and employee, partnership, or joint venture between the Parties.</p>
-            <p style={{ margin: 0 }}><strong>13.4 Assignment:</strong> Neither Party may assign this Agreement or any rights or obligations hereunder without the prior written consent of the other Party.</p>
-            <p style={{ margin: 0 }}><strong>13.5 Notice:</strong> All notices under this Agreement shall be in writing in English and delivered by personal delivery, confirmed email, commercial courier, or registered post.</p>
-            <p style={{ margin: 0 }}><strong>13.6 Waiver:</strong> No failure or delay by either Party in exercising any right under this Agreement shall constitute a waiver of that right or any other right.</p>
-            <p style={{ margin: 0 }}><strong>13.7 Severability:</strong> If any provision of this Agreement is held to be invalid or unenforceable, such provision shall be modified to the minimum extent necessary to make it enforceable, and the remaining provisions shall continue in full force and effect.</p>
-            <p style={{ margin: 0 }}><strong>13.8 Entire Agreement:</strong> This Agreement, including all Annexures, constitutes the entire agreement between the Parties with respect to its subject matter.</p>
-            <p style={{ margin: 0 }}><strong>13.9 Counterparts:</strong> This Agreement may be executed in counterparts, including electronic or digital signatures, each of which shall be deemed an original, and all of which together shall constitute one and the same instrument.</p>
-          </div>
-        </div>
-
-        {/* IN WITNESS WHEREOF */}
-        <div style={{ marginBottom: '1.5rem', fontSize: '11px', color: '#334155', lineHeight: '1.7', textAlign: 'justify' }}>
+        {/* IN WITNESS WHEREOF Statement */}
+        <div style={{ marginBottom: '1.25rem', fontSize: '11px', color: '#1e293b', lineHeight: '1.7', textAlign: 'justify' }}>
           <p style={{ margin: 0 }}>
             <strong>IN WITNESS WHEREOF</strong>, the Parties have caused this Agreement to be executed by their duly authorised representatives as of the Execution Date first written above.
           </p>
         </div>
 
-        {/* Signature Blocks */}
-        <div style={{ marginBottom: '2.5rem' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #0e7490' }}>
-            <thead>
-              <tr>
-                <th colSpan={2} style={{ ...sigHeaderStyle, borderRight: '1px solid rgba(255,255,255,0.3)' }}>For and on behalf of ECONZ</th>
-                <th colSpan={2} style={sigHeaderStyle}>For and on behalf of CLIENT</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style={sigLabelStyle}>Signature:</td>
-                <td style={{ ...sigCellStyle, borderRight: '1px solid #e2e8f0', height: '36px' }}>&nbsp;</td>
-                <td style={sigLabelStyle}>Signature:</td>
-                <td style={{ ...sigCellStyle, height: '36px' }}>&nbsp;</td>
-              </tr>
-              <tr>
-                <td style={sigLabelStyle}>Full Name:</td>
-                <td style={{ ...sigCellStyle, borderRight: '1px solid #e2e8f0', fontWeight: 700 }}>Karthik Keshava Murthy</td>
-                <td style={sigLabelStyle}>Full Name:</td>
-                <td style={{ ...sigCellStyle, fontWeight: 700 }}>{quote.pocName || quote.customerName?.toUpperCase() || ''}</td>
-              </tr>
-              <tr>
-                <td style={sigLabelStyle}>Title:</td>
-                <td style={{ ...sigCellStyle, borderRight: '1px solid #e2e8f0' }}>Director</td>
-                <td style={{ ...sigLabelStyle, color: '#0284c7' }}>Title:</td>
-                <td style={{ ...sigCellStyle, color: '#0284c7', fontWeight: 700 }}>{quote.pocDesignation || 'Authorized Signatory'}</td>
-              </tr>
-              <tr>
-                <td style={sigLabelStyle}>Date:</td>
-                <td style={{ ...sigCellStyle, borderRight: '1px solid #e2e8f0' }}>{quote.documentExecutionDate || '—'}</td>
-                <td style={sigLabelStyle}>Date:</td>
-                <td style={sigCellStyle}>{quote.documentExecutionDate || '—'}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        {/* Master Agreement Underlined Signature Block */}
+        {renderSignatureSection(false)}
 
         {/* ── ANNEXURE A ── */}
-        <div style={{ textAlign: 'center', marginBottom: '0.75rem', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1' }}>
-          <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', margin: '0 0 0.25rem 0', textTransform: 'uppercase' }}>Annexure A</h2>
+        <div style={{ textAlign: 'center', marginBottom: '0.5rem', paddingTop: '1.5rem', borderTop: '2px dashed #cbd5e1' }}>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', margin: '0 0 0.25rem 0' }}>Annexure A</h2>
           <p style={{ fontSize: '0.85rem', color: '#64748b', fontStyle: 'italic', margin: '0 0 1.5rem 0' }}>Commercial Terms, Pricing &amp; Product-Specific Conditions</p>
         </div>
 
@@ -609,54 +492,69 @@ export default function DocumentPreview() {
           This Annexure A forms an integral part of the Reseller Services Agreement executed between the Parties and sets out the commercial terms specific to the OEM products and Services selected by the Client.
         </p>
 
-        {/* A1. Licence & Pricing Details */}
+        {/* A1. Licence & Pricing Details Table */}
         <div style={{ marginBottom: '1.5rem' }}>
-          <h3 style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', marginBottom: '0.75rem', textTransform: 'uppercase' }}>
+          <h3 style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', marginBottom: '0.75rem' }}>
             A1. Licence &amp; Pricing Details
           </h3>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px', border: '1px solid #cbd5e1' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #cbd5e1' }}>
             <thead>
-              <tr style={{ background: '#0e7490', color: 'white' }}>
-                <th style={{ padding: '0.55rem 0.75rem', textAlign: 'left', fontWeight: 700 }}>SKU / Product</th>
-                <th style={{ padding: '0.55rem 0.75rem', textAlign: 'center', fontWeight: 700 }}>Quantity</th>
-                <th style={{ padding: '0.55rem 0.75rem', textAlign: 'right', fontWeight: 700 }}>Unit Price ({quote.currency || 'INR'})</th>
-                <th style={{ padding: '0.55rem 0.75rem', textAlign: 'center', fontWeight: 700 }}>Commitment Type</th>
-                <th style={{ padding: '0.55rem 0.75rem', textAlign: 'center', fontWeight: 700 }}>Payment Frequency</th>
-                <th style={{ padding: '0.55rem 0.75rem', textAlign: 'right', fontWeight: 700 }}>Total</th>
+              <tr>
+                <th style={{ ...thStyle, width: '22%' }}>SKU / Product</th>
+                <th style={{ ...thStyle, width: '10%', textAlign: 'center' }}>Quantity</th>
+                <th style={{ ...thStyle, width: '14%', textAlign: 'right' }}>Unit Price ({quote.currency || 'INR'})</th>
+                <th style={{ ...thStyle, width: '15%', textAlign: 'center' }}>Commitment Type</th>
+                <th style={{ ...thStyle, width: '14%', textAlign: 'center' }}>Payment Frequency</th>
+                <th style={{ ...thStyle, width: '11%', textAlign: 'center' }}>Credit Terms</th>
+                <th style={{ ...thStyle, width: '14%', textAlign: 'right', borderRight: 'none' }}>Total</th>
               </tr>
             </thead>
             <tbody>
               {skus.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8' }}>
-                    No products attached to this order.
+                  <td colSpan={7} style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8' }}>
+                    No products attached to this contract.
                   </td>
                 </tr>
               ) : (
                 skus.map((sku, idx) => (
-                  <tr key={`a1-${idx}`} style={{ borderBottom: '1px solid #e2e8f0', background: idx % 2 === 1 ? '#f8fafc' : 'white' }}>
-                    <td style={{ padding: '0.55rem 0.75rem', fontWeight: 600 }}>{sku.name || sku.code}</td>
-                    <td style={{ padding: '0.55rem 0.75rem', textAlign: 'center' }}>{sku.qty || 1}</td>
-                    <td style={{ padding: '0.55rem 0.75rem', textAlign: 'right' }}>{sym}{(sku.sellPrice || 0).toFixed(2)}</td>
-                    <td style={{ padding: '0.55rem 0.75rem', textAlign: 'center' }}>{sku.subPlan || 'Annual Commit'}</td>
-                    <td style={{ padding: '0.55rem 0.75rem', textAlign: 'center' }}>{sku.billingCycle || 'Monthly'}</td>
-                    <td style={{ padding: '0.55rem 0.75rem', textAlign: 'right', fontWeight: 700 }}>{sym}{((sku.sellPrice || 0) * (sku.qty || 1)).toFixed(2)}</td>
+                  <tr key={`a1-${idx}`} style={{ background: '#ffffff' }}>
+                    <td style={{ ...tdStyle }}>
+                      <div style={{ fontWeight: 700 }}>{sku.name || 'Google Workspace Business Plus'}</div>
+                      <div style={{ color: '#0284c7', textDecoration: 'underline', fontSize: '10px', marginTop: '0.15rem' }}>
+                        {sku.domain || quote.customerDomain || 'abc.in'}
+                      </div>
+                    </td>
+                    <td style={{ ...tdStyle, textAlign: 'center' }}>{sku.qty || 1}</td>
+                    <td style={{ ...tdStyle, textAlign: 'right' }}>{sym}{(sku.sellPrice || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                    <td style={{ ...tdStyle, textAlign: 'center' }}>{sku.subPlan || '12 Months'}</td>
+                    <td style={{ ...tdStyle, textAlign: 'center' }}>{sku.billingCycle || 'Yearly'}</td>
+                    <td style={{ ...tdStyle, textAlign: 'center' }}>{sku.creditLimit || '10 Days'}</td>
+                    <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, borderRight: 'none' }}>
+                      {sym}{((sku.sellPrice || 0) * (sku.qty || 1)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </td>
                   </tr>
                 ))
               )}
               {skus.length > 0 && (
                 <>
-                  <tr style={{ borderTop: '1px solid #e2e8f0', background: '#f8fafc' }}>
-                    <td colSpan={5} style={{ padding: '0.45rem 0.75rem', textAlign: 'right', fontSize: '11px', color: '#475569', fontWeight: 600 }}>Subtotal :</td>
-                    <td style={{ padding: '0.45rem 0.75rem', textAlign: 'right', fontWeight: 600, color: '#1e293b' }}>{sym}{subtotal.toFixed(2)}</td>
+                  <tr>
+                    <td colSpan={6} style={{ padding: '0.45rem 0.75rem', textAlign: 'right', fontSize: '11px', color: '#64748b', border: 'none' }}>Subtotal :</td>
+                    <td style={{ padding: '0.45rem 0.75rem', textAlign: 'right', fontWeight: 600, color: '#1e293b', border: 'none', borderRight: '1px solid #cbd5e1' }}>
+                      {sym}{subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </td>
                   </tr>
-                  <tr style={{ background: '#f8fafc' }}>
-                    <td colSpan={5} style={{ padding: '0.45rem 0.75rem', textAlign: 'right', fontSize: '11px', color: '#475569', fontWeight: 600 }}>GST @ 18% :</td>
-                    <td style={{ padding: '0.45rem 0.75rem', textAlign: 'right', fontWeight: 600, color: '#1e293b' }}>{sym}{gstAmt.toFixed(2)}</td>
+                  <tr>
+                    <td colSpan={6} style={{ padding: '0.45rem 0.75rem', textAlign: 'right', fontSize: '11px', color: '#64748b', border: 'none' }}>Gst @ 18% :</td>
+                    <td style={{ padding: '0.45rem 0.75rem', textAlign: 'right', fontWeight: 600, color: '#1e293b', border: 'none', borderRight: '1px solid #cbd5e1' }}>
+                      {sym}{gstAmt.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </td>
                   </tr>
-                  <tr style={{ borderTop: '2px solid #cbd5e1', background: '#f1f5f9' }}>
-                    <td colSpan={5} style={{ padding: '0.6rem 0.75rem', textAlign: 'right', fontWeight: 800, fontSize: '12px', color: '#0e7490', textTransform: 'uppercase' }}>Grand Total :</td>
-                    <td style={{ padding: '0.6rem 0.75rem', textAlign: 'right', fontWeight: 800, fontSize: '12px', color: '#0e7490' }}>{sym}{grandTotal.toFixed(2)}</td>
+                  <tr style={{ borderTop: '2px solid #e2e8f0' }}>
+                    <td colSpan={6} style={{ padding: '0.65rem 0.75rem', textAlign: 'right', fontWeight: 800, fontSize: '13px', color: '#0284c7' }}>Grand Total :</td>
+                    <td style={{ padding: '0.65rem 0.75rem', textAlign: 'right', fontWeight: 800, fontSize: '13px', color: '#0284c7', borderRight: '1px solid #cbd5e1' }}>
+                      {sym}{grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </td>
                   </tr>
                 </>
               )}
@@ -664,96 +562,88 @@ export default function DocumentPreview() {
           </table>
         </div>
 
-        {/* A2. Professional Services */}
+        {/* A2. Professional Services Table */}
         <div style={{ marginBottom: '1.5rem' }}>
-          <h3 style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', marginBottom: '0.75rem', textTransform: 'uppercase' }}>
+          <h3 style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', marginBottom: '0.75rem' }}>
             A2. Professional Services (if applicable)
           </h3>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px', border: '1px solid #cbd5e1' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #cbd5e1' }}>
             <thead>
-              <tr style={{ background: '#0e7490', color: 'white' }}>
-                <th style={{ padding: '0.55rem 0.75rem', textAlign: 'left', fontWeight: 700 }}>Service</th>
-                <th style={{ padding: '0.55rem 0.75rem', textAlign: 'center', fontWeight: 700 }}>Quantity</th>
-                <th style={{ padding: '0.55rem 0.75rem', textAlign: 'right', fontWeight: 700 }}>Unit Price ({quote.currency || 'INR'})</th>
-                <th style={{ padding: '0.55rem 0.75rem', textAlign: 'center', fontWeight: 700 }}>Commitment Type</th>
-                <th style={{ padding: '0.55rem 0.75rem', textAlign: 'center', fontWeight: 700 }}>Payment Frequency</th>
-                <th style={{ padding: '0.55rem 0.75rem', textAlign: 'right', fontWeight: 700 }}>Total</th>
+              <tr>
+                <th style={{ ...thStyle, width: '22%' }}>Service</th>
+                <th style={{ ...thStyle, width: '10%', textAlign: 'center' }}>Quantity</th>
+                <th style={{ ...thStyle, width: '14%', textAlign: 'right' }}>Unit Price ({quote.currency || 'INR'})</th>
+                <th style={{ ...thStyle, width: '15%', textAlign: 'center' }}>Commitment Type</th>
+                <th style={{ ...thStyle, width: '14%', textAlign: 'center' }}>Payment Frequency</th>
+                <th style={{ ...thStyle, width: '11%', textAlign: 'center' }}>Credit Terms</th>
+                <th style={{ ...thStyle, width: '14%', textAlign: 'right', borderRight: 'none' }}>Total</th>
               </tr>
             </thead>
             <tbody>
-              <tr><td colSpan={6} style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8', fontStyle: 'italic' }}>No professional services attached to this contract</td></tr>
+              <tr>
+                <td colSpan={7} style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8', fontStyle: 'italic', borderRight: 'none' }}>
+                  No professional services attached to this contract
+                </td>
+              </tr>
             </tbody>
           </table>
+          <p style={{ fontSize: '9.5px', color: '#94a3b8', margin: '0.5rem 0 0.35rem 0', fontStyle: 'italic' }}>
+            Note: GST at 18% is applicable on all Fees. Commitment types: Flexi | Annual Commit | 2-Year Commit | 3-Year Commit. Payment frequency: Monthly | Quarterly | Half-Yearly | Annual.
+          </p>
+          <p style={{ fontSize: '10px', color: '#334155', lineHeight: '1.6', margin: 0, textAlign: 'justify' }}>
+            Details of any Econz professional or managed services (data migration, deployment, training, managed support) shall be documented in a separate Statement of Work (SOW) appended to this Annexure A, which shall include scope, timelines, deliverables, payment milestones, and acceptance criteria.
+          </p>
         </div>
 
-        {/* A3. Technical Support Services */}
+        {/* A3. Technical Support Services Table */}
         <div style={{ marginBottom: '1.5rem' }}>
-          <h3 style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', marginBottom: '0.75rem', textTransform: 'uppercase' }}>
+          <h3 style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', marginBottom: '0.75rem' }}>
             A3. Technical Support Services
           </h3>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px', border: '1px solid #cbd5e1' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #cbd5e1' }}>
             <thead>
-              <tr style={{ background: '#0e7490', color: 'white' }}>
-                <th style={{ padding: '0.55rem 0.75rem', textAlign: 'left', fontWeight: 700 }}>Service</th>
-                <th style={{ padding: '0.55rem 0.75rem', textAlign: 'center', fontWeight: 700 }}>Quantity</th>
-                <th style={{ padding: '0.55rem 0.75rem', textAlign: 'right', fontWeight: 700 }}>Unit Price ({quote.currency || 'INR'})</th>
-                <th style={{ padding: '0.55rem 0.75rem', textAlign: 'center', fontWeight: 700 }}>Commitment Type</th>
-                <th style={{ padding: '0.55rem 0.75rem', textAlign: 'center', fontWeight: 700 }}>Payment Frequency</th>
-                <th style={{ padding: '0.55rem 0.75rem', textAlign: 'right', fontWeight: 700 }}>Total</th>
+              <tr>
+                <th style={{ ...thStyle, width: '22%' }}>Service</th>
+                <th style={{ ...thStyle, width: '10%', textAlign: 'center' }}>Quantity</th>
+                <th style={{ ...thStyle, width: '14%', textAlign: 'right' }}>Unit Price ({quote.currency || 'INR'})</th>
+                <th style={{ ...thStyle, width: '15%', textAlign: 'center' }}>Commitment Type</th>
+                <th style={{ ...thStyle, width: '14%', textAlign: 'center' }}>Payment Frequency</th>
+                <th style={{ ...thStyle, width: '11%', textAlign: 'center' }}>Credit Terms</th>
+                <th style={{ ...thStyle, width: '14%', textAlign: 'right', borderRight: 'none' }}>Total</th>
               </tr>
             </thead>
             <tbody>
-              <tr><td colSpan={6} style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8', fontStyle: 'italic' }}>No technical support services attached to this contract</td></tr>
+              <tr>
+                <td colSpan={7} style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8', fontStyle: 'italic', borderRight: 'none' }}>
+                  No technical support services attached to this contract
+                </td>
+              </tr>
             </tbody>
           </table>
+          <p style={{ fontSize: '9.5px', color: '#94a3b8', margin: '0.5rem 0 0 0', fontStyle: 'italic' }}>
+            Note: GST at 18% is applicable on all Fees. Commitment types: Flexi | Annual Commit | 2-Year Commit | 3-Year Commit. Payment frequency: Monthly | Quarterly | Half-Yearly | Annual.
+          </p>
         </div>
 
         {/* A4-A7 Reference Links */}
-        <div style={{ fontSize: '11px', color: '#334155', lineHeight: '2', marginBottom: '2rem' }}>
+        <div style={{ fontSize: '10.5px', color: '#334155', lineHeight: '2', marginBottom: '2rem' }}>
           <p style={{ margin: 0 }}><strong>A4. Econz Technical Support Guidelines</strong></p>
-          <p style={{ color: '#0284c7', wordBreak: 'break-all', margin: 0 }}>https://docs.google.com/document/d/1w893pL2oU_z-42...</p>
+          <p style={{ color: '#0284c7', wordBreak: 'break-all', margin: 0 }}>https://docs.google.com/document/d/1l-xD3xvxc3iUxWhDmycyN_NClwzxwu45atpLJN_II82Q/edit?tab=t.0</p>
           <p style={{ marginTop: '0.5rem', marginBottom: 0 }}><strong>A5. Google Workspace Service Level Agreement</strong></p>
           <p style={{ color: '#0284c7', margin: 0 }}>https://workspace.google.com/intl/en/terms/sla.html</p>
           <p style={{ marginTop: '0.5rem', marginBottom: 0 }}><strong>A6. Google Workspace Terms of Service</strong></p>
           <p style={{ color: '#0284c7', margin: 0 }}>https://workspace.google.com/terms/premier_terms_at_in_billing.html</p>
           <p style={{ marginTop: '0.5rem', marginBottom: 0 }}><strong>A7. Google Workspace Features</strong></p>
-          <p style={{ margin: 0 }}>Google Workspace Business Editions: <span style={{ color: '#0284c7' }}>https://support.google.com/a/answer/6043385</span></p>
-          <p style={{ margin: 0 }}>Google Workspace Enterprise Editions: <span style={{ color: '#0284c7' }}>https://support.google.com/a/answer/7284269</span></p>
+          <p style={{ margin: 0 }}>Google Workspace Business Editions: <span style={{ color: '#0284c7' }}>https://support.google.com/a/answer/6043385?hl=en</span></p>
+          <p style={{ margin: 0 }}>Google Workspace Enterprise Editions: <span style={{ color: '#0284c7' }}>https://support.google.com/a/answer/7284269?hl=en&ref_topic=4425947</span></p>
         </div>
 
-        {/* Execution of Annexure A Signature Table */}
+        {/* Execution of Annexure A */}
         <div style={{ marginBottom: '1.5rem' }}>
-          <h3 style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a', marginBottom: '0.75rem', textAlign: 'center', textTransform: 'uppercase' }}>
+          <h3 style={{ fontSize: '11px', fontWeight: 800, color: '#0f172a', marginBottom: '0.65rem' }}>
             Execution of Annexure A
           </h3>
-          <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #0e7490' }}>
-            <thead>
-              <tr>
-                <th colSpan={2} style={{ ...sigHeaderStyle, borderRight: '1px solid rgba(255,255,255,0.3)' }}>For and on behalf of ECONZ</th>
-                <th colSpan={2} style={sigHeaderStyle}>For and on behalf of CLIENT</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style={sigLabelStyle}>Signature:</td>
-                <td style={{ ...sigCellStyle, borderRight: '1px solid #e2e8f0', height: '36px' }}>&nbsp;</td>
-                <td style={sigLabelStyle}>Signature:</td>
-                <td style={{ ...sigCellStyle, height: '36px' }}>&nbsp;</td>
-              </tr>
-              <tr>
-                <td style={sigLabelStyle}>Full Name:</td>
-                <td style={{ ...sigCellStyle, borderRight: '1px solid #e2e8f0', fontWeight: 700 }}>Karthik Keshava Murthy</td>
-                <td style={sigLabelStyle}>Full Name:</td>
-                <td style={{ ...sigCellStyle, fontWeight: 700 }}>{quote.pocName || quote.customerName?.toUpperCase() || ''}</td>
-              </tr>
-              <tr>
-                <td style={sigLabelStyle}>Title:</td>
-                <td style={{ ...sigCellStyle, borderRight: '1px solid #e2e8f0' }}>Director</td>
-                <td style={{ ...sigLabelStyle, color: '#0284c7' }}>Title:</td>
-                <td style={{ ...sigCellStyle, color: '#0284c7', fontWeight: 700 }}>{quote.pocDesignation || 'Authorized Signatory'}</td>
-              </tr>
-            </tbody>
-          </table>
+          {renderSignatureSection(true)}
         </div>
 
       </div>
