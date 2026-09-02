@@ -209,15 +209,41 @@ export default function CreateOrder() {
     handleCustomerChange(account);
   };
 
-  const handleVerifyTaxId = () => {
+  const [verifyingTaxId, setVerifyingTaxId] = useState(false);
+
+  const handleVerifyTaxId = async () => {
     const isIndiaAndInr = entity === 'India' && currency === 'INR';
     if (isIndiaAndInr) {
       if (!pan.trim()) {
         showToast(`Enter a ${taxIdType} number first`, true);
         return;
       }
-      setTaxIdVerified(true);
-      showToast(`${taxIdType} verified successfully`);
+      try {
+        setVerifyingTaxId(true);
+        const res = await api.post('/kyc/verify', {
+          id_no: pan.trim(),
+          type: taxIdType,
+          unique_request_id: `REQ_${Date.now()}`
+        });
+
+        if (res.data && res.data.verified) {
+          setTaxIdVerified(true);
+          if (!customerName && res.data.legalName) {
+            setCustomerName(res.data.legalName);
+          }
+          if (!address && res.data.address) {
+            setAddress(res.data.address);
+          }
+          showToast(res.data.message || `${taxIdType} verified successfully!`);
+        } else {
+          showToast(res.data?.message || `Failed to verify ${taxIdType}`, true);
+        }
+      } catch (err) {
+        const msg = err.response?.data?.message || `Failed to verify ${taxIdType}`;
+        showToast(msg, true);
+      } finally {
+        setVerifyingTaxId(false);
+      }
     } else {
       if (!vat.trim()) {
         showToast('Enter a VAT number first', true);
@@ -747,10 +773,11 @@ export default function CreateOrder() {
                     </div>
                     <button
                       type="button"
+                      disabled={verifyingTaxId}
                       className={`verify-pan-btn ${taxIdVerified ? 'verified' : ''}`}
                       onClick={handleVerifyTaxId}
                     >
-                      {taxIdVerified ? `Verified ${taxIdType}` : `Verify ${taxIdType}`}
+                      {verifyingTaxId ? 'Verifying...' : taxIdVerified ? `Verified ${taxIdType}` : `Verify ${taxIdType}`}
                     </button>
                   </div>
                   <input
