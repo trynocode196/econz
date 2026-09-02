@@ -628,14 +628,64 @@ export default function DocumentPreview() {
         {/* A4-A7 Reference Links */}
         <div style={{ fontSize: '10.5px', color: '#334155', lineHeight: '2', marginBottom: '2rem' }}>
           <p style={{ margin: 0 }}><strong>A4. Econz Technical Support Guidelines</strong></p>
-          <p style={{ color: '#0284c7', wordBreak: 'break-all', margin: 0 }}>https://docs.google.com/document/d/1l-xD3xvxc3iUxWhDmycyN_NClwzxwu45atpLJN_II82Q/edit?tab=t.0</p>
+          <p style={{ margin: 0 }}>
+            <a 
+              href="https://docs.google.com/document/d/1l-xD3xvxc3iUxWhDmycyN_NClwzxwu45atpLJN_II82Q/edit?tab=t.0" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              style={{ color: '#0284c7', textDecoration: 'underline', wordBreak: 'break-all', cursor: 'pointer' }}
+            >
+              https://docs.google.com/document/d/1l-xD3xvxc3iUxWhDmycyN_NClwzxwu45atpLJN_II82Q/edit?tab=t.0
+            </a>
+          </p>
+
           <p style={{ marginTop: '0.5rem', marginBottom: 0 }}><strong>A5. Google Workspace Service Level Agreement</strong></p>
-          <p style={{ color: '#0284c7', margin: 0 }}>https://workspace.google.com/intl/en/terms/sla.html</p>
+          <p style={{ margin: 0 }}>
+            <a 
+              href="https://workspace.google.com/intl/en/terms/sla.html" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              style={{ color: '#0284c7', textDecoration: 'underline', cursor: 'pointer' }}
+            >
+              https://workspace.google.com/intl/en/terms/sla.html
+            </a>
+          </p>
+
           <p style={{ marginTop: '0.5rem', marginBottom: 0 }}><strong>A6. Google Workspace Terms of Service</strong></p>
-          <p style={{ color: '#0284c7', margin: 0 }}>https://workspace.google.com/terms/premier_terms_at_in_billing.html</p>
+          <p style={{ margin: 0 }}>
+            <a 
+              href="https://workspace.google.com/terms/premier_terms_at_in_billing.html" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              style={{ color: '#0284c7', textDecoration: 'underline', cursor: 'pointer' }}
+            >
+              https://workspace.google.com/terms/premier_terms_at_in_billing.html
+            </a>
+          </p>
+
           <p style={{ marginTop: '0.5rem', marginBottom: 0 }}><strong>A7. Google Workspace Features</strong></p>
-          <p style={{ margin: 0 }}>Google Workspace Business Editions: <span style={{ color: '#0284c7' }}>https://support.google.com/a/answer/6043385?hl=en</span></p>
-          <p style={{ margin: 0 }}>Google Workspace Enterprise Editions: <span style={{ color: '#0284c7' }}>https://support.google.com/a/answer/7284269?hl=en&ref_topic=4425947</span></p>
+          <p style={{ margin: 0 }}>
+            Google Workspace Business Editions:{' '}
+            <a 
+              href="https://support.google.com/a/answer/6043385?hl=en" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              style={{ color: '#0284c7', textDecoration: 'underline', cursor: 'pointer' }}
+            >
+              https://support.google.com/a/answer/6043385?hl=en
+            </a>
+          </p>
+          <p style={{ margin: 0 }}>
+            Google Workspace Enterprise Editions:{' '}
+            <a 
+              href="https://support.google.com/a/answer/7284269?hl=en&ref_topic=4425947" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              style={{ color: '#0284c7', textDecoration: 'underline', cursor: 'pointer' }}
+            >
+              https://support.google.com/a/answer/7284269?hl=en&ref_topic=4425947
+            </a>
+          </p>
         </div>
 
         {/* Execution of Annexure A */}
