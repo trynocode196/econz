@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Econz Orbit Revenue Operations Platform",
   "scripts": {
+    "start": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:server": "cd server && npm run dev",
     "dev:client": "cd client && npm run dev",
