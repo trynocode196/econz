@@ -210,12 +210,22 @@ export default function CreateOrder() {
   };
 
   const handleVerifyTaxId = () => {
-    if (!pan.trim()) {
-      showToast(`Enter a ${taxIdType} number first`, true);
-      return;
+    const isIndiaAndInr = entity === 'India' && currency === 'INR';
+    if (isIndiaAndInr) {
+      if (!pan.trim()) {
+        showToast(`Enter a ${taxIdType} number first`, true);
+        return;
+      }
+      setTaxIdVerified(true);
+      showToast(`${taxIdType} verified successfully`);
+    } else {
+      if (!vat.trim()) {
+        showToast('Enter a VAT number first', true);
+        return;
+      }
+      setTaxIdVerified(true);
+      showToast('VAT verified successfully');
     }
-    setTaxIdVerified(true);
-    showToast(`${taxIdType} verified successfully`);
   };
 
   const getCurrencySymbol = (curr) => {
@@ -318,9 +328,13 @@ export default function CreateOrder() {
   const validateStep1 = () => {
     if (isBlank(customerName)) return 'Customer company name is required';
     if (isBlank(companyShortName)) return 'Company short name is required';
-    if (entity === 'India') {
+    const isIndiaAndInr = entity === 'India' && currency === 'INR';
+    if (isIndiaAndInr) {
       if (isBlank(pan)) return `${taxIdType} number is required`;
       if (!taxIdVerified) return `Please verify ${taxIdType} before continuing`;
+    } else {
+      if (isBlank(vat)) return 'VAT number is required';
+      if (!taxIdVerified) return 'Please verify VAT before continuing';
     }
     if (isBlank(industry)) return 'Industry is required';
     if (isBlank(address)) return 'Customer company address is required';
@@ -389,7 +403,8 @@ export default function CreateOrder() {
     setStep(s => Math.max(1, s - 1));
   };
 
-  const isIndiaEntity = entity === 'India';
+  const isIndiaAndInr = entity === 'India' && currency === 'INR';
+  const isIndiaEntity = isIndiaAndInr;
 
   // Tax and Grand Total Maths
   const subtotal = orderSkus.reduce((sum, s) => sum + ((parseFloat(s.sellPrice) || 0) * (s.qty || 0)), 0);
@@ -432,7 +447,7 @@ export default function CreateOrder() {
       billTo,
       dealType,
       companyShortName,
-      taxIdType: isIndiaEntity ? taxIdType : undefined,
+      taxIdType: isIndiaAndInr ? taxIdType : 'VAT',
       industry,
       pocName,
       pocEmail,
@@ -441,7 +456,7 @@ export default function CreateOrder() {
       ccEmail,
       orderIndustry: industry,
       orderAddress: address,
-      orderPan: isIndiaEntity ? pan : '',
+      orderPan: isIndiaAndInr ? pan : vat,
       products: productLines,
       skus: productLines,
       requiresApproval: approvalRequired,
@@ -614,9 +629,7 @@ export default function CreateOrder() {
                           checked={entity === opt.value}
                           onChange={() => {
                             setEntity(opt.value);
-                            if (opt.value !== 'India') {
-                              setTaxIdVerified(false);
-                            }
+                            setTaxIdVerified(false);
                           }}
                         />
                         <label htmlFor={`entity-${opt.value}`}>{opt.label}</label>
@@ -644,7 +657,17 @@ export default function CreateOrder() {
                   <div className="chip-group">
                     {currencyOptions.map(opt => (
                       <React.Fragment key={opt.value}>
-                        <input type="radio" id={`curr-${opt.value}`} name="currency" value={opt.value} checked={currency === opt.value} onChange={() => setCurrency(opt.value)} />
+                        <input 
+                          type="radio" 
+                          id={`curr-${opt.value}`} 
+                          name="currency" 
+                          value={opt.value} 
+                          checked={currency === opt.value} 
+                          onChange={() => {
+                            setCurrency(opt.value);
+                            setTaxIdVerified(false);
+                          }} 
+                        />
                         <label htmlFor={`curr-${opt.value}`}>{opt.label}</label>
                       </React.Fragment>
                     ))}
@@ -701,10 +724,10 @@ export default function CreateOrder() {
               </div>
             </div>
 
-            {isIndiaEntity ? (
+            {isIndiaAndInr ? (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem', marginTop: '1.25rem' }} className="grid-2">
                 <div className="field-stack">
-                  <div className="field-stack-header-row">
+                  <div className="field-stack-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div className="tax-id-radios">
                       {['PAN', 'GST'].map(t => (
                         <label key={t}>
@@ -762,19 +785,33 @@ export default function CreateOrder() {
               </div>
             ) : (
               <div style={{ marginTop: '1.25rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }} className="grid-2">
-                <div>
-                  <label className="field-label field-required">VAT</label>
+                <div className="field-stack">
+                  <div className="field-stack-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <label className="field-label field-required" style={{ margin: 0 }}>VAT</label>
+                    <button
+                      type="button"
+                      className={`verify-pan-btn ${taxIdVerified ? 'verified' : ''}`}
+                      onClick={handleVerifyTaxId}
+                    >
+                      {taxIdVerified ? 'Verified VAT' : 'Verify VAT'}
+                    </button>
+                  </div>
                   <input
                     type="text"
                     value={vat}
-                    onChange={(e) => setVat(e.target.value)}
+                    onChange={(e) => {
+                      setVat(e.target.value);
+                      setTaxIdVerified(false);
+                    }}
                     className="input-orbit"
                     placeholder="Type here..."
                     required
                   />
                 </div>
-                <div>
-                  <label className="field-label field-required">INDUSTRY</label>
+                <div className="field-stack">
+                  <div className="field-stack-header-row">
+                    <label className="field-label field-required" style={{ margin: 0 }}>INDUSTRY</label>
+                  </div>
                   <input
                     type="text"
                     list="industries-list"
