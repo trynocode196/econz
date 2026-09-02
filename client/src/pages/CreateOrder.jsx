@@ -16,7 +16,8 @@ import {
   Send,
   Download,
   Minus,
-  ArrowLeft
+  ArrowLeft,
+  Pencil
 } from 'lucide-react';
 import { applyQuoteToForm, linkCustomerOnQuote } from '../utils/quoteFormHydrate';
 import PhoneInput from '../components/PhoneInput';
@@ -1108,6 +1109,148 @@ export default function CreateOrder() {
       {/* ── STEP 3: Contract Preview ── */}
       {step === 3 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          {/* Top Header Bar Matching Reference Screenshot */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+            {/* Left: Breadcrumb / Back Navigation */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.95rem' }}>
+              <button
+                type="button"
+                onClick={handlePrevStep}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--text-secondary)',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  textDecoration: 'underline',
+                  padding: 0,
+                  fontSize: '1rem'
+                }}
+              >
+                Document Preview
+              </button>
+              <span style={{ color: 'var(--text-muted)' }}>/</span>
+              <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>
+                {isEditMode ? editingRefId : 'ORD-TEMP'}
+              </span>
+            </div>
+
+            {/* Right Action Buttons */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <button
+                type="button"
+                onClick={handleDownloadPDF}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.45rem',
+                  padding: '0.55rem 1.15rem',
+                  borderRadius: '0.65rem',
+                  border: '1px solid var(--border-subtle)',
+                  background: 'var(--surface-1)',
+                  color: 'var(--text-primary)',
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+                }}
+              >
+                <Download size={15} />
+                <span>Download PDF</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handlePrevStep}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.45rem',
+                  padding: '0.55rem 1.25rem',
+                  borderRadius: '0.65rem',
+                  border: '1px solid var(--border-subtle)',
+                  background: 'var(--surface-1)',
+                  color: 'var(--text-primary)',
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+                }}
+              >
+                <Pencil size={15} />
+                <span>Edit Document</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSaveDraft}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.45rem',
+                  padding: '0.55rem 1.25rem',
+                  borderRadius: '0.65rem',
+                  border: '1px solid var(--border-subtle)',
+                  background: 'var(--surface-1)',
+                  color: 'var(--text-primary)',
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+                }}
+              >
+                <Save size={15} />
+                <span>{isEditMode ? 'Save Changes' : 'Save Draft'}</span>
+              </button>
+
+              {approvalRequired ? (
+                <button
+                  type="button"
+                  onClick={handleRequestApproval}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.45rem',
+                    padding: '0.55rem 1.35rem',
+                    borderRadius: '0.65rem',
+                    border: 'none',
+                    background: '#f97316',
+                    color: '#ffffff',
+                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(249, 115, 22, 0.3)'
+                  }}
+                >
+                  <Send size={15} />
+                  <span>Request Manager Approval</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleSendDocuSign}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.45rem',
+                    padding: '0.55rem 1.35rem',
+                    borderRadius: '0.65rem',
+                    border: 'none',
+                    background: '#0284c7',
+                    color: '#ffffff',
+                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(2, 132, 199, 0.3)'
+                  }}
+                >
+                  <Send size={15} />
+                  <span>Send Via BoldSign</span>
+                </button>
+              )}
+            </div>
+          </div>
+
           {/* Full-Page Legal Agreement Preview */}
           <div style={{ background: '#f8fafc', padding: '2rem 1rem', borderRadius: '1rem', display: 'flex', justifyContent: 'center' }} className="dark:bg-slate-900/40">
             <DocumentContractView
@@ -1135,73 +1278,6 @@ export default function CreateOrder() {
               econzSignerName="Srikar M"
               econzSignerTitle="Head - Revenue Operations"
             />
-          </div>
-
-          <div style={{
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            background: approvalRequired ? 'rgba(249,115,22,0.1)' : 'rgba(16,185,129,0.1)',
-            padding: '1.5rem', borderRadius: '1.5rem', border: '1px solid',
-            borderColor: approvalRequired ? '#fdba74' : '#a7f3d0'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              {approvalRequired ? (
-                <>
-                  <AlertTriangle className="text-orange-500" />
-                  <div>
-                    <h4 style={{ fontWeight: 700, color: '#c2410c' }}>Exception Detected</h4>
-                    <p style={{ fontSize: '0.75rem', color: '#9a3412' }}>Margin below unit cost requires Manager approval before signing.</p>
-                  </div>
-                </>
-              ) : isExceptionDeal ? (
-                <>
-                  <Check className="text-blue-500" style={{ background: '#dbeafe', padding: '2px', borderRadius: '50%' }} />
-                  <div>
-                    <h4 style={{ fontWeight: 700, color: '#1e40af' }}>Manager Authorization</h4>
-                    <p style={{ fontSize: '0.75rem', color: '#1e3a8a' }}>Margin below unit cost is pre-approved by Manager credentials.</p>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <Check className="text-emerald-500" style={{ background: '#a7f3d0', padding: '2px', borderRadius: '50%' }} />
-                  <div>
-                    <h4 style={{ fontWeight: 700, color: '#065f46' }}>Standard Pricing</h4>
-                    <p style={{ fontSize: '0.75rem', color: '#047857' }}>All items satisfy margins. Ready for direct signature dispatch.</p>
-                  </div>
-                </>
-              )}
-            </div>
-
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button onClick={handleDownloadPDF} className="btn-secondary">
-                <Download size={16} />
-                PDF Preview
-              </button>
-              
-              {approvalRequired ? (
-                <button onClick={handleRequestApproval} className="btn-primary" style={{ background: '#f97316' }}>
-                  <Send size={16} />
-                  Request Manager Approval
-                </button>
-              ) : (
-                <>
-                  <button onClick={handleSaveDraft} className="btn-secondary">
-                    <Save size={16} />
-                    {isEditMode ? 'Save Changes' : 'Save Draft'}
-                  </button>
-                  <button onClick={handleSendDocuSign} className="btn-primary" style={{ background: '#0284c7' }}>
-                    <Send size={16} />
-                    Send via DocuSign
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-            <button onClick={handlePrevStep} className="btn-back-link">
-              <ChevronLeft size={16} />
-              <span>Back</span>
-            </button>
           </div>
         </div>
       )}
