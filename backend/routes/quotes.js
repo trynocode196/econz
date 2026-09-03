@@ -14,6 +14,7 @@ const {
   saveSignedPdfToDisk 
 } = require('../services/boldSignService');
 const { sendDocumentNotification } = require('../services/notificationService');
+const { sendQuoteEmailNotification } = require('../services/brevoEmailService');
 
 const escapeRegex = (str) => String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -444,7 +445,7 @@ router.post('/', protect, async (req, res) => {
       .populate('customer', 'account companyShortName')
       .populate('createdBy', 'name email role');
 
-    // Trigger Notification for Quote Creation
+    // Trigger In-App Notification for Quote Creation
     const actorName = req.user?.name || 'A team member';
     sendDocumentNotification({
       type: 'QUOTE_CREATED',
@@ -455,7 +456,14 @@ router.post('/', protect, async (req, res) => {
       relatedDocId: quote._id,
       actorUser: req.user,
       creatorId: quote.createdBy
-    }).catch(err => console.error('[Quote Notification Error]:', err));
+    }).catch(err => console.error('[Quote In-App Notification Error]:', err));
+
+    // Trigger Brevo Email Notification for Quote Creation
+    sendQuoteEmailNotification({
+      action: 'CREATED',
+      quote,
+      actorUser: req.user
+    }).catch(err => console.error('[Quote Brevo Email Notification Error]:', err));
 
     res.status(201).json({ quote: populated, customer });
   } catch (err) {
@@ -536,7 +544,7 @@ router.put('/:id', protect, async (req, res) => {
       .populate('customer', 'account companyShortName industry contacts address pan entity taxIdType customerType domain');
     const payload = await attachCustomerToQuote(populated);
 
-    // Trigger Notification for Quote Update
+    // Trigger In-App Notification for Quote Update
     const actorName = req.user?.name || 'A team member';
     sendDocumentNotification({
       type: 'QUOTE_UPDATED',
@@ -547,7 +555,14 @@ router.put('/:id', protect, async (req, res) => {
       relatedDocId: quote._id,
       actorUser: req.user,
       creatorId: quote.createdBy
-    }).catch(err => console.error('[Quote Notification Error]:', err));
+    }).catch(err => console.error('[Quote In-App Notification Error]:', err));
+
+    // Trigger Brevo Email Notification for Quote Update
+    sendQuoteEmailNotification({
+      action: 'UPDATED',
+      quote,
+      actorUser: req.user
+    }).catch(err => console.error('[Quote Brevo Email Notification Error]:', err));
 
     res.json(payload);
   } catch (err) {

@@ -6,6 +6,7 @@ const { protect } = require('../middleware/auth');
 const { generateNdaGoogleDoc, sendNdaToBoldSign } = require('../services/ndaService');
 const { getBoldSignDocumentProperties, downloadBoldSignSignedPdf, saveSignedPdfToDisk } = require('../services/boldSignService');
 const { sendDocumentNotification } = require('../services/notificationService');
+const { sendNdaEmailNotification } = require('../services/brevoEmailService');
 
 /**
  * @route   GET /api/nda
@@ -265,7 +266,7 @@ router.post('/', protect, async (req, res) => {
 
     await newNda.save();
 
-    // Trigger Notification for NDA Creation
+    // Trigger In-App Notification for NDA Creation
     const actorName = req.user?.name || 'A team member';
     sendDocumentNotification({
       type: 'NDA_CREATED',
@@ -276,7 +277,14 @@ router.post('/', protect, async (req, res) => {
       relatedDocId: newNda._id,
       actorUser: req.user,
       creatorId: req.user?._id
-    }).catch(err => console.error('[NDA Notification Error]:', err));
+    }).catch(err => console.error('[NDA In-App Notification Error]:', err));
+
+    // Trigger Brevo Email Notification for NDA Creation
+    sendNdaEmailNotification({
+      action: 'CREATED',
+      nda: newNda,
+      actorUser: req.user
+    }).catch(err => console.error('[NDA Brevo Email Notification Error]:', err));
 
     res.status(201).json({
       success: true,
@@ -304,7 +312,7 @@ router.put('/:id', protect, async (req, res) => {
     Object.assign(nda, req.body);
     await nda.save();
 
-    // Trigger Notification for NDA Update
+    // Trigger In-App Notification for NDA Update
     const actorName = req.user?.name || 'A team member';
     sendDocumentNotification({
       type: 'NDA_UPDATED',
@@ -315,7 +323,14 @@ router.put('/:id', protect, async (req, res) => {
       relatedDocId: nda._id,
       actorUser: req.user,
       creatorId: nda.createdBy
-    }).catch(err => console.error('[NDA Notification Error]:', err));
+    }).catch(err => console.error('[NDA In-App Notification Error]:', err));
+
+    // Trigger Brevo Email Notification for NDA Update
+    sendNdaEmailNotification({
+      action: 'UPDATED',
+      nda,
+      actorUser: req.user
+    }).catch(err => console.error('[NDA Brevo Email Notification Error]:', err));
 
     res.json(nda);
   } catch (err) {
