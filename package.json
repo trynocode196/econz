@@ -3,13 +3,15 @@
   "version": "1.0.0",
   "description": "Econz Orbit Revenue Operations Platform",
   "scripts": {
-    "start": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
-    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
-    "dev:server": "cd server && npm run dev",
-    "dev:client": "cd client && npm run dev",
-    "build": "cd client && npm run build",
-    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
-    "seed": "cd server && npm run seed"
+    "start": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:server": "cd backend && npm run dev",
+    "dev:client": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "seed": "cd backend && npm run seed"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
