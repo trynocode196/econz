@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import EconzLogo from '../EconzLogo';
+import NotificationBell from '../notifications/NotificationBell';
 import { 
   PieChart, 
   PlusCircle, 
@@ -147,6 +148,8 @@ export default function Sidebar() {
               {roleText}
             </p>
           </div>
+
+          <NotificationBell placement="sidebar" />
 
           <button 
             type="button"

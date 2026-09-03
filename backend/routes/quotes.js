@@ -13,6 +13,7 @@ const {
   downloadBoldSignSignedPdf, 
   saveSignedPdfToDisk 
 } = require('../services/boldSignService');
+const { sendDocumentNotification } = require('../services/notificationService');
 
 const escapeRegex = (str) => String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -443,6 +444,19 @@ router.post('/', protect, async (req, res) => {
       .populate('customer', 'account companyShortName')
       .populate('createdBy', 'name email role');
 
+    // Trigger Notification for Quote Creation
+    const actorName = req.user?.name || 'A team member';
+    sendDocumentNotification({
+      type: 'QUOTE_CREATED',
+      title: 'New Quote Created',
+      message: `Quote #${quote.refId} was created by ${actorName}.`,
+      relatedType: 'Quote',
+      refId: quote.refId,
+      relatedDocId: quote._id,
+      actorUser: req.user,
+      creatorId: quote.createdBy
+    }).catch(err => console.error('[Quote Notification Error]:', err));
+
     res.status(201).json({ quote: populated, customer });
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -521,6 +535,20 @@ router.put('/:id', protect, async (req, res) => {
       .populate('createdBy', 'name email role')
       .populate('customer', 'account companyShortName industry contacts address pan entity taxIdType customerType domain');
     const payload = await attachCustomerToQuote(populated);
+
+    // Trigger Notification for Quote Update
+    const actorName = req.user?.name || 'A team member';
+    sendDocumentNotification({
+      type: 'QUOTE_UPDATED',
+      title: 'Quote Updated',
+      message: `Quote #${quote.refId} was updated by ${actorName}.`,
+      relatedType: 'Quote',
+      refId: quote.refId,
+      relatedDocId: quote._id,
+      actorUser: req.user,
+      creatorId: quote.createdBy
+    }).catch(err => console.error('[Quote Notification Error]:', err));
+
     res.json(payload);
   } catch (err) {
     res.status(400).json({ message: err.message });

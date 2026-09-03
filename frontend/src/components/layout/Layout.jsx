@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Sidebar from './Sidebar';
+import NotificationBell from '../notifications/NotificationBell';
 
 export default function Layout() {
   const { user, loading } = useAuth();
@@ -81,21 +82,24 @@ export default function Layout() {
           }}>
             Econz Orbit
           </span>
-          <button
-            onClick={() => setSidebarOpen(o => !o)}
-            style={{
-              background: 'none', border: 'none',
-              cursor: 'pointer', padding: '0.5rem',
-              color: 'var(--text-secondary)',
-              display: 'flex', alignItems: 'center'
-            }}
-          >
-            <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <line x1="3" y1="6"  x2="21" y2="6" />
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <NotificationBell placement="header" />
+            <button
+              onClick={() => setSidebarOpen(o => !o)}
+              style={{
+                background: 'none', border: 'none',
+                cursor: 'pointer', padding: '0.5rem',
+                color: 'var(--text-secondary)',
+                display: 'flex', alignItems: 'center'
+              }}
+            >
+              <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <line x1="3" y1="6"  x2="21" y2="6" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            </button>
+          </div>
         </header>
 
         <main className="main-scroll fade-in">

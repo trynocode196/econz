@@ -5,6 +5,7 @@ const Customer = require('../models/Customer');
 const { protect } = require('../middleware/auth');
 const { generateNdaGoogleDoc, sendNdaToBoldSign } = require('../services/ndaService');
 const { getBoldSignDocumentProperties, downloadBoldSignSignedPdf, saveSignedPdfToDisk } = require('../services/boldSignService');
+const { sendDocumentNotification } = require('../services/notificationService');
 
 /**
  * @route   GET /api/nda
@@ -264,6 +265,19 @@ router.post('/', protect, async (req, res) => {
 
     await newNda.save();
 
+    // Trigger Notification for NDA Creation
+    const actorName = req.user?.name || 'A team member';
+    sendDocumentNotification({
+      type: 'NDA_CREATED',
+      title: 'New NDA Created',
+      message: `NDA #${refId} was created by ${actorName}.`,
+      relatedType: 'Nda',
+      refId: refId,
+      relatedDocId: newNda._id,
+      actorUser: req.user,
+      creatorId: req.user?._id
+    }).catch(err => console.error('[NDA Notification Error]:', err));
+
     res.status(201).json({
       success: true,
       message: 'Mutual Non-Disclosure Agreement created and sent for signature successfully.',
@@ -289,6 +303,20 @@ router.put('/:id', protect, async (req, res) => {
 
     Object.assign(nda, req.body);
     await nda.save();
+
+    // Trigger Notification for NDA Update
+    const actorName = req.user?.name || 'A team member';
+    sendDocumentNotification({
+      type: 'NDA_UPDATED',
+      title: 'NDA Updated',
+      message: `NDA #${nda.refId} was updated by ${actorName}.`,
+      relatedType: 'Nda',
+      refId: nda.refId,
+      relatedDocId: nda._id,
+      actorUser: req.user,
+      creatorId: nda.createdBy
+    }).catch(err => console.error('[NDA Notification Error]:', err));
+
     res.json(nda);
   } catch (err) {
     console.error('Error updating NDA:', err);

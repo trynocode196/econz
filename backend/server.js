@@ -29,6 +29,7 @@ app.use('/api/margins', require('./routes/margins'));
 app.use('/api/crm', require('./routes/crm'));
 app.use('/api/kyc', require('./routes/kyc'));
 app.use('/api/nda', require('./routes/nda'));
+app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/webhooks', require('./routes/webhooks'));
 
 app.use('/uploads', express.static(path.join(__dirname, 'public/signed_contracts')));
