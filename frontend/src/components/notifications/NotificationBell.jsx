@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { 
   Bell, 
@@ -7,8 +8,10 @@ import {
   FileCheck, 
   Trash2, 
   X,
-  ExternalLink,
-  Clock
+  Clock,
+  ChevronRight,
+  Sparkles,
+  Inbox
 } from 'lucide-react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -37,13 +40,13 @@ export default function NotificationBell({ placement = 'sidebar' }) {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
-  const popoverRef = useRef(null);
+  const [activeFilter, setActiveFilter] = useState('ALL'); // 'ALL' | 'UNREAD' | 'QUOTE' | 'NDA'
 
   const fetchNotifications = async (showLoading = false) => {
     if (!user) return;
     try {
       if (showLoading) setLoading(true);
-      const res = await api.get('/notifications?limit=40');
+      const res = await api.get('/notifications?limit=60');
       if (res.data) {
         setNotifications(res.data.notifications || []);
         setUnreadCount(res.data.unreadCount || 0);
@@ -64,19 +67,14 @@ export default function NotificationBell({ placement = 'sidebar' }) {
     return () => clearInterval(interval);
   }, [user]);
 
-  // Click outside to close
+  // Handle ESC key to close drawer
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (popoverRef.current && !popoverRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    }
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+    if (!isOpen) return undefined;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setIsOpen(false);
     };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
 
   const handleToggle = () => {
@@ -88,7 +86,7 @@ export default function NotificationBell({ placement = 'sidebar' }) {
   };
 
   const handleMarkAllAsRead = async (e) => {
-    e.stopPropagation();
+    e?.stopPropagation();
     try {
       await api.patch('/notifications/read-all');
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
@@ -135,10 +133,19 @@ export default function NotificationBell({ placement = 'sidebar' }) {
     }
   };
 
-  const isSidebar = placement === 'sidebar';
+  // Filtered notifications
+  const filteredNotifications = notifications.filter(n => {
+    if (activeFilter === 'UNREAD') return !n.isRead;
+    if (activeFilter === 'QUOTE') return n.relatedType === 'Quote' || n.type.includes('QUOTE');
+    if (activeFilter === 'NDA') return n.relatedType === 'Nda' || n.type.includes('NDA');
+    return true;
+  });
+
+  const quoteCount = notifications.filter(n => n.relatedType === 'Quote' || n.type.includes('QUOTE')).length;
+  const ndaCount = notifications.filter(n => n.relatedType === 'Nda' || n.type.includes('NDA')).length;
 
   return (
-    <div style={{ position: 'relative' }} ref={popoverRef}>
+    <>
       {/* Bell Trigger Button */}
       <button
         type="button"
@@ -148,7 +155,7 @@ export default function NotificationBell({ placement = 'sidebar' }) {
           width: '2rem',
           height: '2rem',
           borderRadius: '0.5rem',
-          background: isOpen ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.06)',
+          background: isOpen ? 'rgba(56, 189, 248, 0.2)' : 'rgba(255, 255, 255, 0.06)',
           border: 'none',
           color: unreadCount > 0 ? '#38bdf8' : '#94a3b8',
           display: 'flex',
@@ -189,215 +196,476 @@ export default function NotificationBell({ placement = 'sidebar' }) {
         )}
       </button>
 
-      {/* Popover Dropdown Panel */}
-      {isOpen && (
-        <div
-          style={{
-            position: 'absolute',
-            ...(isSidebar
-              ? { bottom: 'calc(100% + 10px)', left: '0' }
-              : { top: 'calc(100% + 10px)', right: '0' }),
-            width: '340px',
-            maxHeight: '440px',
-            background: 'var(--surface-1, #0f172a)',
-            border: '1px solid var(--border-default, rgba(255, 255, 255, 0.12))',
-            borderRadius: '1rem',
-            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255,255,255,0.08)',
-            zIndex: 9999,
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-            animation: 'fadeInScale 0.15s ease-out'
-          }}
-        >
-          {/* Header */}
+      {/* Right-Side Slide-Over Drawer Popup */}
+      {isOpen &&
+        createPortal(
           <div
             style={{
-              padding: '0.85rem 1rem',
-              borderBottom: '1px solid var(--border-subtle, rgba(255, 255, 255, 0.08))',
+              position: 'fixed',
+              inset: 0,
+              zIndex: 99999,
               display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              background: 'rgba(255, 255, 255, 0.02)'
+              justifyContent: 'flex-end',
+              background: 'rgba(0, 0, 0, 0.6)',
+              backdropFilter: 'blur(5px)',
+              animation: 'fadeIn 0.2s ease-out'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--text-primary, #ffffff)' }}>
-                Notifications
-              </span>
-              {unreadCount > 0 && (
-                <span
+            {/* Backdrop click area to close */}
+            <div
+              style={{ position: 'absolute', inset: 0 }}
+              onClick={() => setIsOpen(false)}
+            />
+
+            {/* Slide-in Drawer Container */}
+            <aside
+              style={{
+                position: 'relative',
+                zIndex: 10,
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%',
+                width: '100%',
+                maxWidth: '460px',
+                background: 'var(--surface-1, #0f172a)',
+                borderLeft: '1px solid var(--border-subtle, rgba(255, 255, 255, 0.1))',
+                boxShadow: '-10px 0 40px rgba(0, 0, 0, 0.5)',
+                color: 'var(--text-primary, #ffffff)',
+                animation: 'slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
+              }}
+            >
+              {/* Drawer Header matching media_1788435947809.png */}
+              <header
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.875rem',
+                  padding: '1.25rem 1.5rem',
+                  borderBottom: '1px solid var(--border-subtle, rgba(255, 255, 255, 0.08))',
+                  background: 'var(--surface-2, rgba(15, 23, 42, 0.95))'
+                }}
+              >
+                <div
                   style={{
-                    background: 'rgba(56, 189, 248, 0.15)',
+                    width: '2.5rem',
+                    height: '2.5rem',
+                    borderRadius: '0.75rem',
+                    background: 'rgba(56, 189, 248, 0.12)',
                     color: '#38bdf8',
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    padding: '2px 7px',
-                    borderRadius: '9999px',
-                    border: '1px solid rgba(56, 189, 248, 0.3)'
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 0 15px rgba(56, 189, 248, 0.15)'
                   }}
                 >
-                  {unreadCount} new
-                </span>
-              )}
-            </div>
+                  <Bell size={18} />
+                </div>
 
-            {unreadCount > 0 && (
-              <button
-                type="button"
-                onClick={handleMarkAllAsRead}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#94a3b8',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  padding: '4px 6px',
-                  borderRadius: '0.375rem',
-                  transition: 'color 0.15s'
-                }}
-                className="hover:text-sky-400"
-              >
-                <CheckCheck size={13} />
-                Mark all read
-              </button>
-            )}
-          </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <h2 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary, #ffffff)', margin: 0 }}>
+                      Notifications
+                    </h2>
+                    {unreadCount > 0 && (
+                      <span
+                        style={{
+                          background: 'rgba(239, 68, 68, 0.15)',
+                          color: '#f87171',
+                          fontSize: '11px',
+                          fontWeight: 800,
+                          padding: '1px 7px',
+                          borderRadius: '9999px',
+                          border: '1px solid rgba(239, 68, 68, 0.3)'
+                        }}
+                      >
+                        {unreadCount} unread
+                      </span>
+                    )}
+                  </div>
+                  <p style={{ fontSize: '0.775rem', color: 'var(--text-muted, #94a3b8)', margin: '0.2rem 0 0 0' }}>
+                    Activity and real-time updates for Quotes & NDAs.
+                  </p>
+                </div>
 
-          {/* List Area */}
-          <div
-            style={{
-              flex: 1,
-              overflowY: 'auto',
-              maxHeight: '340px'
-            }}
-          >
-            {loading && notifications.length === 0 ? (
-              <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem' }}>
-                Loading updates...
-              </div>
-            ) : notifications.length === 0 ? (
+                <button
+                  type="button"
+                  onClick={() => setIsOpen(false)}
+                  style={{
+                    width: '2rem',
+                    height: '2rem',
+                    borderRadius: '0.5rem',
+                    border: '1px solid var(--border-subtle, rgba(255, 255, 255, 0.1))',
+                    background: 'var(--surface-1, rgba(255, 255, 255, 0.05))',
+                    color: 'var(--text-muted, #94a3b8)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.15s ease'
+                  }}
+                  className="hover:text-white hover:bg-white/10"
+                >
+                  <X size={15} />
+                </button>
+              </header>
+
+              {/* Sub-header Filter Tabs & Mark All as Read */}
               <div
                 style={{
-                  padding: '2.5rem 1.5rem',
-                  textAlign: 'center',
+                  padding: '0.85rem 1.5rem',
                   display: 'flex',
-                  flexDirection: 'column',
                   alignItems: 'center',
-                  gap: '0.5rem',
-                  color: '#64748b'
+                  justifyContent: 'space-between',
+                  borderBottom: '1px solid var(--border-subtle, rgba(255, 255, 255, 0.06))',
+                  background: 'rgba(255, 255, 255, 0.015)'
                 }}
               >
-                <Bell size={24} style={{ opacity: 0.4 }} />
-                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>No notifications yet</span>
-                <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>
-                  You'll be notified when Quotes or NDAs are created or updated.
-                </span>
-              </div>
-            ) : (
-              notifications.map(notif => {
-                const isQuote = notif.relatedType === 'Quote' || notif.type.includes('QUOTE');
-                const isNda = notif.relatedType === 'Nda' || notif.type.includes('NDA');
-                const isCreated = notif.type.includes('CREATED');
-
-                const iconBg = isQuote 
-                  ? 'rgba(14, 165, 233, 0.15)' 
-                  : isNda 
-                  ? 'rgba(16, 185, 129, 0.15)' 
-                  : 'rgba(168, 85, 247, 0.15)';
-                const iconColor = isQuote ? '#0284c7' : isNda ? '#10b981' : '#a855f7';
-
-                return (
-                  <div
-                    key={notif._id}
-                    onClick={() => handleNotificationClick(notif)}
+                {/* Filter Pills */}
+                <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
+                  <button
+                    type="button"
+                    onClick={() => setActiveFilter('ALL')}
                     style={{
-                      padding: '0.75rem 1rem',
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      gap: '0.75rem',
+                      padding: '0.35rem 0.65rem',
+                      borderRadius: '0.5rem',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
                       cursor: 'pointer',
-                      borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
-                      background: notif.isRead ? 'transparent' : 'rgba(14, 165, 233, 0.05)',
-                      transition: 'background 0.15s ease',
-                      position: 'relative'
+                      border: 'none',
+                      background: activeFilter === 'ALL' ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
+                      color: activeFilter === 'ALL' ? '#38bdf8' : '#94a3b8'
                     }}
-                    className="hover:bg-white/5"
                   >
-                    {/* Type Icon */}
+                    All ({notifications.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveFilter('UNREAD')}
+                    style={{
+                      padding: '0.35rem 0.65rem',
+                      borderRadius: '0.5rem',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      border: 'none',
+                      background: activeFilter === 'UNREAD' ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
+                      color: activeFilter === 'UNREAD' ? '#38bdf8' : '#94a3b8'
+                    }}
+                  >
+                    Unread ({unreadCount})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveFilter('QUOTE')}
+                    style={{
+                      padding: '0.35rem 0.65rem',
+                      borderRadius: '0.5rem',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      border: 'none',
+                      background: activeFilter === 'QUOTE' ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
+                      color: activeFilter === 'QUOTE' ? '#38bdf8' : '#94a3b8'
+                    }}
+                  >
+                    Quotes ({quoteCount})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveFilter('NDA')}
+                    style={{
+                      padding: '0.35rem 0.65rem',
+                      borderRadius: '0.5rem',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      border: 'none',
+                      background: activeFilter === 'NDA' ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
+                      color: activeFilter === 'NDA' ? '#38bdf8' : '#94a3b8'
+                    }}
+                  >
+                    NDAs ({ndaCount})
+                  </button>
+                </div>
+
+                {unreadCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleMarkAllAsRead}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#94a3b8',
+                      fontSize: '0.725rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      padding: '4px 6px',
+                      borderRadius: '0.375rem',
+                      transition: 'color 0.15s'
+                    }}
+                    className="hover:text-sky-400"
+                  >
+                    <CheckCheck size={13} />
+                    Mark all read
+                  </button>
+                )}
+              </div>
+
+              {/* Notification List Scroll Area */}
+              <div
+                style={{
+                  flex: 1,
+                  overflowY: 'auto',
+                  padding: '1rem 1.5rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.75rem'
+                }}
+              >
+                {loading && notifications.length === 0 ? (
+                  <div style={{ padding: '3rem 1rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem' }}>
+                    Loading updates...
+                  </div>
+                ) : filteredNotifications.length === 0 ? (
+                  <div
+                    style={{
+                      padding: '4rem 1.5rem',
+                      textAlign: 'center',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '0.75rem',
+                      color: '#64748b'
+                    }}
+                  >
                     <div
                       style={{
-                        width: '2rem',
-                        height: '2rem',
-                        borderRadius: '0.5rem',
-                        background: iconBg,
-                        color: iconColor,
+                        width: '3.5rem',
+                        height: '3.5rem',
+                        borderRadius: '1rem',
+                        background: 'rgba(255, 255, 255, 0.03)',
+                        border: '1px solid rgba(255, 255, 255, 0.06)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        flexShrink: 0,
-                        marginTop: '2px'
+                        color: '#64748b'
                       }}
                     >
-                      {isQuote ? <FileText size={15} /> : <FileCheck size={15} />}
+                      <Inbox size={24} />
                     </div>
-
-                    {/* Content */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
-                        <span
-                          style={{
-                            fontSize: '0.8rem',
-                            fontWeight: notif.isRead ? 600 : 700,
-                            color: notif.isRead ? 'var(--text-primary, #e2e8f0)' : '#38bdf8',
-                            lineHeight: 1.2
-                          }}
-                        >
-                          {notif.title}
-                        </span>
-                        <span style={{ fontSize: '0.7rem', color: '#64748b', whiteSpace: 'nowrap' }}>
-                          {timeAgo(notif.createdAt)}
-                        </span>
-                      </div>
-
-                      <p
-                        style={{
-                          fontSize: '0.775rem',
-                          color: notif.isRead ? '#94a3b8' : '#cbd5e1',
-                          marginTop: '0.2rem',
-                          lineHeight: 1.35,
-                          wordBreak: 'break-word'
-                        }}
-                      >
-                        {notif.message}
+                    <div>
+                      <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary, #cbd5e1)', margin: 0 }}>
+                        {activeFilter === 'UNREAD' ? 'No unread notifications' : 'No notifications yet'}
+                      </h4>
+                      <p style={{ fontSize: '0.8rem', color: '#64748b', margin: '0.25rem 0 0 0', maxWidth: '280px' }}>
+                        When Quotes or NDAs are created or updated, you will receive real-time notifications here.
                       </p>
                     </div>
-
-                    {/* Unread Dot Indicator */}
-                    {!notif.isRead && (
-                      <div
-                        style={{
-                          width: '6px',
-                          height: '6px',
-                          borderRadius: '50%',
-                          background: '#38bdf8',
-                          flexShrink: 0,
-                          marginTop: '6px',
-                          boxShadow: '0 0 6px rgba(56, 189, 248, 0.8)'
-                        }}
-                      />
-                    )}
                   </div>
-                );
-              })
-            )}
-          </div>
-        </div>
-      )}
-    </div>
+                ) : (
+                  filteredNotifications.map(notif => {
+                    const isQuote = notif.relatedType === 'Quote' || notif.type.includes('QUOTE');
+                    const isNda = notif.relatedType === 'Nda' || notif.type.includes('NDA');
+                    const isCreated = notif.type.includes('CREATED');
+
+                    const badgeBg = isQuote 
+                      ? 'rgba(14, 165, 233, 0.12)' 
+                      : isNda 
+                      ? 'rgba(16, 185, 129, 0.12)' 
+                      : 'rgba(168, 85, 247, 0.12)';
+                    const badgeColor = isQuote ? '#38bdf8' : isNda ? '#34d399' : '#c084fc';
+                    const dotColor = isQuote ? '#0284c7' : isNda ? '#10b981' : '#a855f7';
+
+                    return (
+                      <div
+                        key={notif._id}
+                        onClick={() => handleNotificationClick(notif)}
+                        style={{
+                          padding: '1rem 1.15rem',
+                          borderRadius: '0.875rem',
+                          background: notif.isRead 
+                            ? 'var(--surface-2, rgba(255, 255, 255, 0.02))' 
+                            : 'rgba(56, 189, 248, 0.06)',
+                          border: notif.isRead 
+                            ? '1px solid var(--border-subtle, rgba(255, 255, 255, 0.06))' 
+                            : '1px solid rgba(56, 189, 248, 0.25)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '0.6rem',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease',
+                          position: 'relative'
+                        }}
+                        className="hover:border-sky-500/40 hover:bg-white/[0.04]"
+                      >
+                        {/* Top row: Category Badge, Time, and Delete Button */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <span
+                              style={{
+                                width: '8px',
+                                height: '8px',
+                                borderRadius: '50%',
+                                background: dotColor,
+                                display: 'inline-block'
+                              }}
+                            />
+                            <span
+                              style={{
+                                fontSize: '0.7rem',
+                                fontWeight: 800,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em',
+                                padding: '2px 8px',
+                                borderRadius: '0.375rem',
+                                background: badgeBg,
+                                color: badgeColor
+                              }}
+                            >
+                              {isQuote ? 'Quote' : isNda ? 'NDA' : 'Document'}
+                            </span>
+                            {!notif.isRead && (
+                              <span
+                                style={{
+                                  fontSize: '0.65rem',
+                                  fontWeight: 800,
+                                  color: '#38bdf8',
+                                  background: 'rgba(56, 189, 248, 0.2)',
+                                  padding: '1px 6px',
+                                  borderRadius: '9999px'
+                                }}
+                              >
+                                NEW
+                              </span>
+                            )}
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <span style={{ fontSize: '0.725rem', color: '#64748b', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                              <Clock size={11} />
+                              {timeAgo(notif.createdAt)}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={(e) => handleDeleteNotification(e, notif._id)}
+                              title="Delete notification"
+                              style={{
+                                background: 'transparent',
+                                border: 'none',
+                                color: '#64748b',
+                                cursor: 'pointer',
+                                padding: '2px',
+                                borderRadius: '4px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                              }}
+                              className="hover:text-red-400"
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Middle: Title & Message */}
+                        <div>
+                          <h4
+                            style={{
+                              fontSize: '0.875rem',
+                              fontWeight: 700,
+                              color: notif.isRead ? 'var(--text-primary, #f1f5f9)' : '#38bdf8',
+                              margin: '0 0 0.25rem 0',
+                              lineHeight: 1.3
+                            }}
+                          >
+                            {notif.title}
+                          </h4>
+                          <p
+                            style={{
+                              fontSize: '0.8rem',
+                              color: notif.isRead ? '#94a3b8' : '#cbd5e1',
+                              margin: 0,
+                              lineHeight: 1.4
+                            }}
+                          >
+                            {notif.message}
+                          </p>
+                        </div>
+
+                        {/* Bottom Row: View Document link */}
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'flex-end',
+                            gap: '4px',
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            color: badgeColor,
+                            paddingTop: '0.25rem'
+                          }}
+                        >
+                          <span>Open {isQuote ? 'Quote' : 'NDA'}</span>
+                          <ChevronRight size={13} />
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Drawer Footer */}
+              <footer
+                style={{
+                  padding: '1rem 1.5rem',
+                  borderTop: '1px solid var(--border-subtle, rgba(255, 255, 255, 0.08))',
+                  background: 'var(--surface-2, rgba(15, 23, 42, 0.95))',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  fontSize: '0.75rem',
+                  color: '#64748b'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span
+                    style={{
+                      width: '6px',
+                      height: '6px',
+                      borderRadius: '50%',
+                      background: '#10b981',
+                      boxShadow: '0 0 8px #10b981'
+                    }}
+                  />
+                  <span>Live Sync Active</span>
+                </div>
+                <span>Showing {filteredNotifications.length} updates</span>
+              </footer>
+            </aside>
+          </div>,
+          document.body
+        )}
+
+      {/* Global Slide-In Animation Style */}
+      <style>{`
+        @keyframes slideInRight {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+      `}</style>
+    </>
   );
 }
